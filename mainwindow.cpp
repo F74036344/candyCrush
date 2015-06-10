@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //set some widgets properties
     ui->pushButton_gameStart->setGeometry(width()/2-160/2,250,160,70);
+    ui->pushButton_setting->setGeometry(width()/2-100/2,350,100,30);
 
     //set background image
     backgroundImage.load(":/image/Resource/candyCrushBackground.png");
@@ -53,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_title_Candy->lower();
     ui->label_title_Crush->lower();
     ui->pushButton_gameStart->lower();
+    ui->pushButton_setting->lower();
 
     qDebug() << "timer.start next line";
 
@@ -94,7 +96,7 @@ void MainWindow::d_alpha_var_blackState()
         ui->label_title_Candy->raise();
         ui->label_title_Crush->raise();
         ui->pushButton_gameStart->raise();
-
+        ui->pushButton_setting->raise();
 
 
     }
