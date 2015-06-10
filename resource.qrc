@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/image">
+        <file>Resource/origin/lollipop_withoutStick_red.png</file>
+        <file>Resource/star.png</file>
+        <file>Resource/candyCrushBackground.png</file>
+        <file>Resource/candyCrushLogo.png</file>
+        <file>Resource/button_gameStart_background.png</file>
+    </qresource>
+    <qresource prefix="/video"/>
+    <qresource prefix="/sound"/>
+</RCC>
