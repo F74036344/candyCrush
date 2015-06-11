@@ -16,10 +16,16 @@ class GameWindow : public QWidget
 {
     Q_OBJECT
 
+
+
 public:
     explicit GameWindow(QWidget *parent = 0);
     ~GameWindow();
     int power(int,int);
+
+signals:
+    void quit(int star,int score);
+
 
 private:
     Ui::GameWindow *ui;

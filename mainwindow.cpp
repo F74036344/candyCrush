@@ -10,6 +10,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "gamewindow.h"
+#include "settings.h"
 
 //include sources
 
@@ -34,13 +35,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_gameStart->setGeometry(width()/2-160/2,250,160,70);
     ui->pushButton_setting->setGeometry(width()/2-100/2,350,100,30);
     ui->pushButton_quit->setGeometry(width()/2-80/2,400,80,25);
-    ui->pushButton_skip->setGeometry(width()-60,height()-75,40,40);
+    ui->pushButton_skip->setGeometry(width()-60,height()-60,40,40);
 
     //set background image
     backgroundImage.load(":/image/Resource/candyCrushBackground.png");
-    backgroundImage = backgroundImage.scaled(width(),450);
+    backgroundImage = backgroundImage.scaled(width(),height());
     ui->label_background->setPixmap(backgroundImage);
-    ui->label_background->setGeometry(0,0,width(),450);
+    ui->label_background->setGeometry(0,0,width(),height());
 
     //start to set background mask animation properties
     ui->label_backgroundMask->setGeometry(0,0,width(),height());
@@ -163,4 +164,12 @@ void MainWindow::on_pushButton_skip_clicked()
     ui->pushButton_gameStart->raise();
     ui->pushButton_setting->raise();
     ui->pushButton_quit->raise();
+}
+
+void MainWindow::on_pushButton_setting_clicked()
+{
+    Settings *settings = new Settings;
+    settings->setAttribute(Qt::WA_DeleteOnClose);
+    settings->setWindowModality(Qt::ApplicationModal);
+    settings->show();
 }

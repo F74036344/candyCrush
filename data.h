@@ -7,6 +7,12 @@ class Data
 public:
     Data();
     ~Data();
+    void setModeValue(int value);
+    int getModeValue();
+private:
+    int mode;
+
+
 };
 
 #endif // DATA_H

@@ -8,6 +8,8 @@ Result::Result(QWidget *parent) :
     ui->setupUi(this);
     setFixedSize(350,300);
 
+
+    ui->pushButton_returnToMenu->setGeometry(width()/2-120/2,height()-30-10,120,30);
 }
 
 Result::~Result()

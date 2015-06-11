@@ -1,7 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <author/>
- <comment/>
- <exportmacro/>
  <class>Settings</class>
  <widget class="QWidget" name="Settings">
   <property name="geometry">
@@ -13,9 +11,15 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Settings</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resource.qrc">
+    <normaloff>:/image/Resource/candyCrushLogo.png</normaloff>:/image/Resource/candyCrushLogo.png</iconset>
   </property>
  </widget>
- <pixmapfunction/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -7,10 +7,10 @@ GameWindow::GameWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     //set some basic values first
-    blockEdgeAmount = 10;
+    blockEdgeAmount = 7;
 
     gapOfWidget = 10;   gapOfBlocks = 4;
-    blockEdgeLength = 40;
+    blockEdgeLength = 60;
 
     gameAreaEdgeLength = gapOfBlocks + blockEdgeAmount*(blockEdgeLength+gapOfBlocks);
     recordAreaWidth = 200;

@@ -21,6 +21,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+signals:
+    void quit(int star,int score);
+
 private slots:
     //timer slots
     void d_alpha_var_whiteState();
@@ -34,6 +37,8 @@ private slots:
     void on_pushButton_quit_clicked();
 
     void on_pushButton_skip_clicked();
+
+    void on_pushButton_setting_clicked();
 
 private:
     Ui::MainWindow *ui;
