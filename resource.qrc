@@ -6,6 +6,10 @@
         <file>Resource/button_gameStart_background.png</file>
         <file>Resource/candyCrushBackground.png</file>
         <file>Resource/fastForward.png</file>
+        <file>Resource/tick.png</file>
+        <file>Resource/score.png</file>
+        <file>Resource/specialCandy_4.png</file>
+        <file>Resource/candy_3.png</file>
     </qresource>
     <qresource prefix="/video"/>
     <qresource prefix="/sound"/>

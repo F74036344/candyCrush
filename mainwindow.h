@@ -20,6 +20,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    Sound *sound;
+    Data *data;
+    Result *result;
 
 signals:
     void quit(int star,int score);
@@ -42,9 +45,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    Sound *sound;
-    Data *data;
-    Result *result;
     QPixmap backgroundImage;
     QTimer timer;
     int rgba_r,rgba_g,rgba_b,rgba_a;

@@ -168,8 +168,8 @@ void MainWindow::on_pushButton_skip_clicked()
 
 void MainWindow::on_pushButton_setting_clicked()
 {
-    Settings *settings = new Settings;
-    settings->setAttribute(Qt::WA_DeleteOnClose);
-    settings->setWindowModality(Qt::ApplicationModal);
-    settings->show();
+    Settings *set = new Settings;
+    set->setAttribute(Qt::WA_DeleteOnClose);
+    set->setWindowModality(Qt::ApplicationModal);
+    set->show();
 }
