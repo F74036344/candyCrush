@@ -29,6 +29,12 @@ private slots:
     //pushButton slots
     void on_pushButton_test_clicked();
 
+    void on_pushButton_gameStart_clicked();
+
+    void on_pushButton_quit_clicked();
+
+    void on_pushButton_skip_clicked();
+
 private:
     Ui::MainWindow *ui;
     Sound *sound;
