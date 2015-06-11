@@ -27,6 +27,9 @@ signals:
     void quit(int star,int score);
 
 
+private slots:
+    void on_pushButton_returnToMenu_clicked();
+
 private:
     Ui::GameWindow *ui;
     QPixmap backgroundImage;

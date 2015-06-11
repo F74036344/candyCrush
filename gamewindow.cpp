@@ -1,3 +1,5 @@
+#include <QMessageBox>
+
 #include "gamewindow.h"
 #include "ui_gamewindow.h"
 
@@ -7,16 +9,19 @@ GameWindow::GameWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     //set some basic values first
-    blockEdgeAmount = 7;
+    blockEdgeAmount = 10;
 
     gapOfWidget = 10;   gapOfBlocks = 4;
-    blockEdgeLength = 60;
+    blockEdgeLength = 55;
 
     gameAreaEdgeLength = gapOfBlocks + blockEdgeAmount*(blockEdgeLength+gapOfBlocks);
     recordAreaWidth = 200;
 
     //Then start to set the properties of the form and its widgets
     setFixedSize(gapOfWidget+200+gapOfWidget+gameAreaEdgeLength+gapOfWidget,gapOfWidget+gameAreaEdgeLength+gapOfWidget);
+
+    //Set the position or geometry of some widgets
+    ui->pushButton_returnToMenu->setGeometry(40,height()-70,120,40);
 
     //set the graphicsView's(gameArea) properties
     ui->graphicsView->setGeometry(gapOfWidget+recordAreaWidth+gapOfWidget,gapOfWidget,gameAreaEdgeLength,gameAreaEdgeLength);
@@ -67,6 +72,18 @@ int GameWindow::power(int b, int n)
 {
     int tmp = 1;
     for(int i=0;i<n;i++)
-        tmp *= b ;
+        tmp *= b;
     return tmp;
+}
+
+void GameWindow::on_pushButton_returnToMenu_clicked()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this,
+                                  "Return to Menu",
+                                  "Do you really want to return to Menu?\n"
+                                  "current game state would be DISCARDED!!",
+                          QMessageBox::Yes | QMessageBox::No);
+    if(reply == QMessageBox::Yes)
+        close();
 }

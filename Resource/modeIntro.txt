@@ -1,0 +1,22 @@
+mode1:
+To play the game with the 
+goal achieving a specific 
+score in limited steps. 
+
+mode2:
+This mode is to play the 
+game with the goal 
+eliminating a certain kind
+of candies to a particular 
+amount.
+
+mode3:
+When selecting this mode, 
+a kind of special candies 
+would appear, and you can 
+collect it by eliminating all the 
+candies below it ,and it would
+fall to the bottom so that you 
+can collect it. Try your best
+to reach the goal!
+

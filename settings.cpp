@@ -55,6 +55,8 @@ Settings::Settings(QWidget *parent) :
         ui->spinBox_goal->setMinimum(100);
         //reset the text of label_text_goal
         ui->label_text_goal->setText("goal:\n(100~100000)");
+        //reset the text of label_mode_intro
+        ui->label_mode_intro->setText("<html><head/><body><p>To play the game with the </p><p>goal <span style=\" font-weight:600;\">achieving a specific </span></p><p><span style=\" font-weight:600;\">score</span> in limited steps. </p></body></html>");
         break;
     case 2:
         ui->radioButton_mode2->setChecked(true);
@@ -66,6 +68,8 @@ Settings::Settings(QWidget *parent) :
         ui->spinBox_goal->setMinimum(10);
         //reset the text of label_text_goal
         ui->label_text_goal->setText("goal:\n(10~500)");
+        //reset the text of label_mode_intro
+        ui->label_mode_intro->setText("<html><head/><body><p>This mode is to play the </p><p>game with the goal </p><p><span style=\" font-weight:600;\">eliminating a certain kind</span></p><p><span style=\" font-weight:600;\">of candies to a particular </span></p><p><span style=\" font-weight:600;\">amount.</span></p></body></html>");
         break;
     case 3:
         ui->radioButton_mode3->setChecked(true);
@@ -77,6 +81,8 @@ Settings::Settings(QWidget *parent) :
         ui->spinBox_goal->setMinimum(1);
         //reset the text of label_text_goal
         ui->label_text_goal->setText("goal:\n(1~20)");
+        //reset the text of label_mode_intro
+        ui->label_mode_intro->setText("<html><head/><body><p>When selecting this mode, </p><p>a kind of <span style=\" font-weight:600;\">special candies </span></p><p>would appear, and you can </p><p><span style=\" font-weight:600;\">collect it by eliminating all the </span></p><p><span style=\" font-weight:600;\">candies below it</span> ,and it would</p><p><span style=\" font-weight:600;\">fall to the bottom </span>so that you </p><p>can collect it. Try your best</p><p>to reach the goal!</p></body></html>");
         break;
     }
 
@@ -130,6 +136,8 @@ void Settings::on_radioButton_mode1_clicked()
     ui->spinBox_goal->setMinimum(100);
     //reset the text of label_text_goal
     ui->label_text_goal->setText("goal:\n(100~100000)");
+    //reset the text of label_mode_intro
+    ui->label_mode_intro->setText("<html><head/><body><p>To play the game with the </p><p>goal <span style=\" font-weight:600;\">achieving a specific </span></p><p><span style=\" font-weight:600;\">score</span> in limited steps. </p></body></html>");
 }
 
 void Settings::on_radioButton_mode2_clicked()
@@ -142,6 +150,8 @@ void Settings::on_radioButton_mode2_clicked()
     ui->spinBox_goal->setMinimum(10);
     //reset the text of label_text_goal
     ui->label_text_goal->setText("goal:\n(10~500)");
+    //reset the text of label_mode_intro
+    ui->label_mode_intro->setText("<html><head/><body><p>This mode is to play the </p><p>game with the goal </p><p><span style=\" font-weight:600;\">eliminating a certain kind</span></p><p><span style=\" font-weight:600;\">of candies to a particular </span></p><p><span style=\" font-weight:600;\">amount.</span></p></body></html>");
 }
 
 void Settings::on_radioButton_mode3_clicked()
@@ -154,4 +164,6 @@ void Settings::on_radioButton_mode3_clicked()
     ui->spinBox_goal->setMinimum(1);
     //reset the text of label_text_goal
     ui->label_text_goal->setText("goal:\n(1~20)");
+    //reset the text of label_mode_intro
+    ui->label_mode_intro->setText("<html><head/><body><p>When selecting this mode, </p><p>a kind of <span style=\" font-weight:600;\">special candies </span></p><p>would appear, and you can </p><p><span style=\" font-weight:600;\">collect it by eliminating all the </span></p><p><span style=\" font-weight:600;\">candies below it</span> ,and it would</p><p><span style=\" font-weight:600;\">fall to the bottom </span>so that you </p><p>can collect it. Try your best</p><p>to reach the goal!</p></body></html>");
 }
