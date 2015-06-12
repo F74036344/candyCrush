@@ -1,7 +1,10 @@
 #include <QMessageBox>
 
+#include "mainwindow.h"
 #include "gamewindow.h"
 #include "ui_gamewindow.h"
+
+extern MainWindow *w;
 
 GameWindow::GameWindow(QWidget *parent) :
     QWidget(parent),
@@ -9,10 +12,10 @@ GameWindow::GameWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     //set some basic values first
-    blockEdgeAmount = 10;
+    blockEdgeAmount = w->data->getBoardEdgeSizeValue();
 
     gapOfWidget = 10;   gapOfBlocks = 4;
-    blockEdgeLength = 55;
+    blockEdgeLength = 50;
 
     gameAreaEdgeLength = gapOfBlocks + blockEdgeAmount*(blockEdgeLength+gapOfBlocks);
     recordAreaWidth = 200;
@@ -21,6 +24,7 @@ GameWindow::GameWindow(QWidget *parent) :
     setFixedSize(gapOfWidget+200+gapOfWidget+gameAreaEdgeLength+gapOfWidget,gapOfWidget+gameAreaEdgeLength+gapOfWidget);
 
     //Set the position or geometry of some widgets
+    ui->pushButton_clickMe->setGeometry(40,height()-70-60,120,40);
     ui->pushButton_returnToMenu->setGeometry(40,height()-70,120,40);
 
     //set the graphicsView's(gameArea) properties
@@ -86,4 +90,13 @@ void GameWindow::on_pushButton_returnToMenu_clicked()
                           QMessageBox::Yes | QMessageBox::No);
     if(reply == QMessageBox::Yes)
         close();
+}
+
+void GameWindow::on_pushButton_clickMe_clicked()
+{
+    Result *rslt = new Result;
+    connect(rslt,SIGNAL(destroyed()),this,SLOT(close()));
+    rslt->setAttribute(Qt::WA_DeleteOnClose);
+    rslt->setWindowModality(Qt::ApplicationModal);
+    rslt->show();
 }

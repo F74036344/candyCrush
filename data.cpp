@@ -6,6 +6,7 @@ Data::Data()
     setModeValue(1);
     setStepValue(30);
     setGoalValue(500);
+    setComboBox_boardEdgeSizeIndex(2);
 }
 
 Data::~Data()
@@ -49,3 +50,17 @@ int Data::getGoalValue()
     return goal;
 }
 
+void Data::setComboBox_boardEdgeSizeIndex(int index)
+{
+    comboBox_boardEdgeSizeIndex = index;
+}
+
+int Data::getComboBox_boardEdgeSizeIndex()
+{
+    return comboBox_boardEdgeSizeIndex;
+}
+
+int Data::getBoardEdgeSizeValue()
+{
+    return comboBox_boardEdgeSizeIndex+8;
+}

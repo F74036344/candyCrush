@@ -120,10 +120,7 @@ void MainWindow::d_alpha_var_blackState()
 
 void MainWindow::on_pushButton_test_clicked()
 {
-    result = new Result;
-    result->setAttribute(Qt::WA_DeleteOnClose);
-    result->setWindowModality(Qt::ApplicationModal);
-    result->show();
+    //test
 }
 
 void MainWindow::on_pushButton_gameStart_clicked()

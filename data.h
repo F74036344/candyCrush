@@ -13,10 +13,14 @@ public:
     int getStepValue();
     void setGoalValue(int value);
     int getGoalValue();
+    void setComboBox_boardEdgeSizeIndex(int index);
+    int getComboBox_boardEdgeSizeIndex();
+    int getBoardEdgeSizeValue();
 private:
     int mode;
     int step;
     int goal;
+    int comboBox_boardEdgeSizeIndex;
 };
 
 #endif // DATA_H

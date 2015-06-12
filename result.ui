@@ -10,8 +10,15 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="cursor">
+   <cursorShape>ArrowCursor</cursorShape>
+  </property>
   <property name="windowTitle">
    <string>Result</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resource.qrc">
+    <normaloff>:/image/Resource/candyCrushLogo.png</normaloff>:/image/Resource/candyCrushLogo.png</iconset>
   </property>
   <widget class="QPushButton" name="pushButton_returnToMenu">
    <property name="geometry">
@@ -30,6 +37,8 @@
    </property>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -30,6 +30,8 @@ signals:
 private slots:
     void on_pushButton_returnToMenu_clicked();
 
+    void on_pushButton_clickMe_clicked();
+
 private:
     Ui::GameWindow *ui;
     QPixmap backgroundImage;
