@@ -8,10 +8,31 @@
         <file>Resource/fastForward.png</file>
         <file>Resource/tick.png</file>
         <file>Resource/score.png</file>
-        <file>Resource/specialCandy_4.png</file>
-        <file>Resource/candy_3.png</file>
         <file>Resource/bomb.png</file>
+        <file>Resource/candyBackground.jpg</file>
     </qresource>
     <qresource prefix="/video"/>
     <qresource prefix="/sound"/>
+    <qresource prefix="/image_candy">
+        <file>Resource/candy_1.png</file>
+        <file>Resource/candy_1_selected.png</file>
+        <file>Resource/candy_2.png</file>
+        <file>Resource/candy_2_selected.png</file>
+        <file>Resource/candy_3.png</file>
+        <file>Resource/candy_3_selected.png</file>
+        <file>Resource/candy_4.png</file>
+        <file>Resource/candy_4_selected.png</file>
+        <file>Resource/candy_5.png</file>
+        <file>Resource/candy_5_selected.png</file>
+        <file>Resource/candy_6.png</file>
+        <file>Resource/candy_6_selected.png</file>
+        <file>Resource/collectCandy_1.png</file>
+        <file>Resource/collectCandy_2.png</file>
+        <file>Resource/collectCandy_3.png</file>
+        <file>Resource/collectCandy_4.png</file>
+        <file>Resource/specialCandy_bomb.png</file>
+        <file>Resource/specialCandy_col.png</file>
+        <file>Resource/specialCandy_row.png</file>
+        <file>Resource/specialCandy_star.png</file>
+    </qresource>
 </RCC>

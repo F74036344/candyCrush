@@ -24,7 +24,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setFixedSize(600,470);
-    setAttribute(Qt::WA_DeleteOnClose);
 
     //Initialize sound object
     sound = new Sound;
@@ -139,7 +138,7 @@ void MainWindow::on_pushButton_quit_clicked()
                                   "Quit the Game ?",
                           QMessageBox::Yes | QMessageBox::No);
     if(reply == QMessageBox::Yes)
-        close();
+        delete this;
 }
 
 void MainWindow::on_pushButton_skip_clicked()
@@ -166,7 +165,6 @@ void MainWindow::on_pushButton_skip_clicked()
 void MainWindow::on_pushButton_setting_clicked()
 {
     Settings *set = new Settings;
-    set->setAttribute(Qt::WA_DeleteOnClose);
     set->setWindowModality(Qt::ApplicationModal);
     set->show();
 }

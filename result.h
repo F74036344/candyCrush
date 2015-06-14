@@ -16,6 +16,9 @@ public:
     explicit Result(QWidget *parent = 0);
     ~Result();
 
+private slots:
+    void on_pushButton_returnToMenu_clicked();
+
 private:
     Ui::Result *ui;
 };

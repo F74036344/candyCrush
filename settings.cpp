@@ -26,10 +26,10 @@ Settings::Settings(QWidget *parent) :
     //load the pic of each option
     scoreMode_pic.load(":/image/Resource/score.png");
     scoreMode_pic_s.load(":/image/Resource/score.png");
-    amountMode_pic.load(":/image/Resource/candy_3.png");
-    amountMode_pic_s.load(":/image/Resource/candy_3.png");
-    collectMode_pic.load(":/image/Resource/specialCandy_4.png");
-    collectMode_pic_s.load(":/image/Resource/specialCandy_4.png");
+    amountMode_pic.load(":/image_candy/Resource/candy_3.png");
+    amountMode_pic_s.load(":/image_candy/Resource/candy_3.png");
+    collectMode_pic.load(":/image_candy/Resource/collectCandy_4.png");
+    collectMode_pic_s.load(":/image_candy/Resource/collectCandy_4.png");
     //And then set the pic and the pic_s to the proper size
     //_s first
     scoreMode_pic_s = scoreMode_pic_s.scaled(ui->label_scoreModeIcon->width(),
@@ -109,7 +109,7 @@ Settings::~Settings()
 
 void Settings::on_pushButton_cancel_clicked()
 {
-    close();
+    delete this;
 }
 
 void Settings::on_pushButton_ok_clicked()
@@ -129,7 +129,7 @@ void Settings::on_pushButton_ok_clicked()
     //save the comboBox_boardSize currentIndex to data
     w->data->setComboBox_boardEdgeSizeIndex(ui->comboBox_boardSize->currentIndex());
 
-    close();
+    delete this;
 
 }
 
