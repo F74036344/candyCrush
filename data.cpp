@@ -7,6 +7,7 @@ Data::Data()
     setStepValue(30);
     setGoalValue(500);
     setComboBox_boardEdgeSizeIndex(2);
+    setComboBox_kindsOfCandyIndex(1);
 }
 
 Data::~Data()
@@ -63,4 +64,19 @@ int Data::getComboBox_boardEdgeSizeIndex()
 int Data::getBoardEdgeSizeValue()
 {
     return comboBox_boardEdgeSizeIndex+8;
+}
+
+void Data::setComboBox_kindsOfCandyIndex(int index)
+{
+    comboBox_kindsOfCandyIndex = index;
+}
+
+int Data::getComboBox_kindsOfCandyIndex()
+{
+    return comboBox_kindsOfCandyIndex;
+}
+
+int Data::getKindsOfCandyValue()
+{
+    return comboBox_kindsOfCandyIndex+4;
 }

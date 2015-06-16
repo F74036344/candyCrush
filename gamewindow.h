@@ -27,6 +27,7 @@ public:
     explicit GameWindow(QWidget *parent = 0);
     ~GameWindow();
 
+    void initCandyBoard();
 
     void checkIfAnyCandyIsSelected();
         void checkCandiesToExchange();
@@ -66,7 +67,7 @@ private:
     QPixmap specialCandyRowImage,specialCandyColImage,specialCandyBombImage,specialCandyStarImage;
     QPixmap *collectCandyImage;
     QLabel **candyImageHolder;
-    QString *candyTypeRecorder;
+    char *candyTypeRecorder;
     bool *isBlockSelected;
 };
 

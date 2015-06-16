@@ -10,6 +10,7 @@
         <file>Resource/score.png</file>
         <file>Resource/bomb.png</file>
         <file>Resource/candyBackground.jpg</file>
+        <file>Resource/burst.png</file>
     </qresource>
     <qresource prefix="/video"/>
     <qresource prefix="/sound"/>

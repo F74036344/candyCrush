@@ -11,17 +11,20 @@ Settings::Settings(QWidget *parent) :
 {
     ui->setupUi(this);
     //set the basic properties
-    setFixedSize(450,520);
+    setFixedSize(620,520);
 
     //set the limits(max and in value) of the spinBox_step
     //**spinBox_goal's limits would be set later
     ui->spinBox_step->setMaximum(100);
     ui->spinBox_step->setMinimum(10);
 
-    //Initialize the comboBox_boardSize
+    //Initialize the comboBox_boardSize, comboBox_kindsOfCandy
     for(int i=0;i<5;i++)
         ui->comboBox_boardSize->addItem(QString::number(i+8)+"x"+QString::number(i+8));
     ui->comboBox_boardSize->setCurrentIndex(w->data->getComboBox_boardEdgeSizeIndex());
+    for(int i=0;i<3;i++)
+        ui->comboBox_kindsOfCandy->addItem(QString::number(i+4));
+    ui->comboBox_kindsOfCandy->setCurrentIndex(w->data->getComboBox_kindsOfCandyIndex());
 
     //load the pic of each option
     scoreMode_pic.load(":/image/Resource/score.png");
@@ -126,9 +129,9 @@ void Settings::on_pushButton_ok_clicked()
     w->data->setStepValue(ui->spinBox_step->value());
     //save the goal value to the data
     w->data->setGoalValue(ui->spinBox_goal->value());
-    //save the comboBox_boardSize currentIndex to data
+    //save the comboBox_boardSize,comboBox_kindsOfCandy currentIndex to data
     w->data->setComboBox_boardEdgeSizeIndex(ui->comboBox_boardSize->currentIndex());
-
+    w->data->setComboBox_kindsOfCandyIndex(ui->comboBox_kindsOfCandy->currentIndex());
     delete this;
 
 }
