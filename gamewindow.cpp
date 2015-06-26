@@ -276,7 +276,7 @@ void GameWindow::checkIfAnyCandyIsSelected(int candyToSelectRow, int candyToSele
         if(*(isCandySelected+i))
             isAnyCandySelected = true;
     if(isAnyCandySelected)
-        ;//checkCandiesToExchange();
+        ;//checkCandiesToExchange(candyWantToExchangeRow,candyWantToExchangeCol);
     else
     {
         //No other candy is selected,so just select current candy
@@ -305,7 +305,7 @@ void GameWindow::checkIfAnyCandyIsSelected(int candyToSelectRow, int candyToSele
                 else
                 {
                     //Trigger the special candy's ability(Call the special candy's fuction)
-                    //useSpecialCandy(candyToSelectRow,candyToSelectCol);
+                    //useSpecialCandy(candyToUseRow,candyToUseCol);
                 }
             }
             else if(*(candyTypeRecorder+candyToSelectCol+candyToSelectRow*blockEdgeAmount)<30)
@@ -319,6 +319,43 @@ void GameWindow::checkIfAnyCandyIsSelected(int candyToSelectRow, int candyToSele
 
 }
 
+void GameWindow::exchangeCandy(int candyWantToExchangeRow, int candyWantToExchangeCol)
+{
+    //To check the selected candy and the candyWantToExchange is star candy or not
+    //calculate the amount of star candy
+    int starCandyAmount = 0;
+    //Find the selected candy and then check if the selected candy is star candy or not
+    for(int i=0;i<power(blockEdgeAmount,2);i++)
+        if(*(isCandySelected+i))
+            if(*(candyTypeRecorder+i)==10)  //star candy
+            {
+                starCandyAmount++;
+                break;
+            }
+    //Then check if candWantToExchange is star candy or not
+    if(*(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount)==10)  //star candy
+        starCandyAmount++;
+    //check the amount of star candy
+    switch(starCandyAmount)
+    {
+    case 0: //Both of the candies are normal candies
+        //if selectedCandy and candyWantToExchange are neighbors of each other, then just exchange them
+
+        break;
+    case 1://One of the candies is a star candy
+        //Trigger the star candy's ability(Call the starCandy's function)
+        //useStarCandy();
+        break;
+    case 2://Both of the candies are star candy -> have no effect
+        //So just deselect all of the candies
+        cancelSelectedCandy();
+        break;
+
+    }
+
+
+}
+
 void GameWindow::cancelSelectedCandy()
 {
     //set all candies unselected
@@ -327,7 +364,7 @@ void GameWindow::cancelSelectedCandy()
         *(isCandySelected+i) = false;
          //And then initialize the block QGraphicsRectItem
         if(*(candyTypeRecorder+i)>=10)   //Check the candy's type.
-        //If the candy's type is not normal(0~9), then set the candy with a certain background
+        //If the candy's type is not normal(0~9), then for visibility's sake, set the candy with a certain background
         {
             if(*(candyTypeRecorder+i)<20) //special candy    //color:30ffda
                 (block+i)->setBrush(QColor(0x30,0xff,0xda,130));
@@ -338,7 +375,7 @@ void GameWindow::cancelSelectedCandy()
         {
             (block+i)->setBrush(QColor(0,0,0,130));
         }
-        //No matter what type the candy is, set the frame of the candy's block to nothing
+        //No matter what type the candy is, set the frame of the candy's block to invisible
         (block+i)->setPen(QPen(Qt::transparent,0));
     }
 

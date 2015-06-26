@@ -32,10 +32,13 @@ public:
     void checkIfAnyCandyIsSelected(int candyToSelectRow,int candyToSelectCol);
         void checkCandiesToExchange();
             void useStarCandy();
-            void exchangeCandy();
+            void exchangeCandy(int candyWantToExchangeRow,int candyWantToExchangeCol);
         void selectCurrentCandy();
-            void useSpecialCandy();
-        void cancelSelectedCandy();
+            void useSpecialCandy(int candyToUseRow,int candyToUseCol);
+
+    void checkCanEliminateAnyCandy();
+
+    void cancelSelectedCandy();
 
 
 
