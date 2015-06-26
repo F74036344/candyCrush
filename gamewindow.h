@@ -29,7 +29,7 @@ public:
 
     void initCandyBoard();
 
-    void checkIfAnyCandyIsSelected();
+    void checkIfAnyCandyIsSelected(int candyToSelectRow,int candyToSelectCol);
         void checkCandiesToExchange();
             void useStarCandy();
             void exchangeCandy();
@@ -67,8 +67,10 @@ private:
     QPixmap specialCandyRowImage,specialCandyColImage,specialCandyBombImage,specialCandyStarImage;
     QPixmap *collectCandyImage;
     QLabel **candyImageHolder;
-    char *candyTypeRecorder;
-    bool *isBlockSelected;
+    char *candyTypeRecorder;    //candyType(char): 1.normalCandy: 0~5  2.specialCandy: 10~13  3.collectCandy: 20~23  4.undefined: -1
+    bool *isCandySelected;
+
+    bool isMousePressEventBlocked;
 };
 
 #endif // GAMEWINDOW_H
