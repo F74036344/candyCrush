@@ -37,7 +37,8 @@ public:
 
     void candyImageHolderUpdate();
 
-    void checkCanEliminateAnyCandy();
+    bool checkCanEliminateAnyCandy();
+        void eliminateCandy();
 
     void makeCandyFall();
 
@@ -77,6 +78,12 @@ private:
     bool *isCandySelected;
 
     bool isMousePressEventBlocked;
+
+    //variables to store data such as score, step, etc
+    int goal;
+    int score;
+    int step;
+    int star;
 };
 
 #endif // GAMEWINDOW_H

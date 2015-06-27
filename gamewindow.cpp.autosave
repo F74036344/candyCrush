@@ -656,7 +656,7 @@ void GameWindow::eliminateCandy()
                 combo++;
                 if(combo>=3)    //當combo>=3時，找尾巴block的下方及從尾巴往前數2個位置的block的下方有沒有combo=3，有的話specialBombCandy++
                 {
-
+                    
 
 
 
