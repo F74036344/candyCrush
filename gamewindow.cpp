@@ -313,8 +313,8 @@ void GameWindow::exchangeCandy(int candyWantToExchangeRow, int candyWantToExchan
 
     if(*(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount)>10
             && *(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount)<20)
+    //If the type of candyWantToExchange is special(star candy exclusive) -> have no effect -> deselect all of the candies
     {
-        //If the type of candyWantToExchange is special(star candy exclusive) -> have no effect -> deselect all of the candies
         cancelSelectedCandy();
     }
     else
@@ -438,12 +438,10 @@ void GameWindow::useStarCandy(int candySelectedRow,int candySelectedCol,int cand
     //Deselect all of the candies
     cancelSelectedCandy();
 
-    //Then update the candyImageHolder
-    candyImageHolderUpdate();
-
     //Star candy have been used, some candy on the board have been eliminated by the star candy's ability
     //So it's about time to generate the candy to fill in the blank on the candyboard
-    //generateCandy();
+    makeCandyFall();
+
 }
 
 void GameWindow::useSpecialCandy(int candyToUseRow, int candyToUseCol)
@@ -456,7 +454,7 @@ void GameWindow::useSpecialCandy(int candyToUseRow, int candyToUseCol)
     //And deselect all of the candies
     cancelSelectedCandy();
     //Then make the remained candies falling and generate new candies
-    //makeCandyFall();
+    makeCandyFall();
 
 }
 
@@ -605,10 +603,124 @@ void GameWindow::checkCanEliminateAnyCandy()
 
 void GameWindow::makeCandyFall()
 {
+    //-1 means the block has no candy(empty)
+
+    //step1: move all the candy downwards to fill the block with -1 type
+    int moveStep;
+    for(int col=0;row<blockEdgeAmount;row++)
+        for(int row=blockEdgeAmount-1;row>=0;row--) //由下往上逐一檢查每個block
+        {
+            moveStep = 0;
+            for(int row_for_check=row+1;row_for_check<blockEdgeAmount;row_for_check++)  //每一個block由上往下檢查
+            {
+                //If the next block below is empty, then moveStep++
+                if(*(candyTypeRecorder+col+row_for_check*blockEdgeAmount)==-1)
+                {
+                    moveStep++;
+                    ;//and then set the origin block to -1
+                }
+                else    //encounter a non-empty block -> break the loop
+                {
+                    break;
+                }
+            }
+            //Next is to move the block downwards based on the moveStep
+            *(candyTypeRecorder+col+(row+moveStep)*blockEdgeAmount) = *(candyTypeRecorder+col+row*blockEdgeAmount);
+            //And set the origin block to -1
+            *(candyTypeRecorder+col+row*blockEdgeAmount) = -1;
+
+        }
+    //step2:generate candies to fill the empty block(step1已將所有candy都movedown了，所以現在空的block都擠在上面)
+    //和initCandyBoard十分類似的填法，不過這邊我改成由下往上、由左往右填、並往下及往左檢查
+    //並且多一個條件:只填-1的格子
+
+
+    int kindsOfCandy = w->data->getKindsOfCandyValue();
+    std::vector<int> ballot;
+    int index;
+    int row,col,row_for_check,col_for_check;
+    int combo=1;
+    bool comboExceed = false;
+    for(col = 0;col<blockEdgeAmount;col++)
+        for(row=blockEdgeAmount-1;row>=0;row--)
+        {
+            if(*(candyTypeRecorder+col+row*blockEdgeAmount)==-1)
+            {
+                if(!comboExceed)    //If it is not in the comboExceed status, initialize the ballot
+                {
+                //Initialize the ballot
+                    ballot.clear();
+                    for(int i=0;i<kindsOfCandy;i++)
+                        ballot.push_back(i);
+                }
+                index = qrand()%(ballot.size());
+                *(candyTypeRecorder+col+row*blockEdgeAmount) = ballot.at(index);
+                //向下及向左檢查
+                //向下檢查
+                comboExceed = false;
+                combo=1;
+                for(row_for_check=row+1;row_for_check<blockEdgeAmount;row_for_check++)
+                {
+                    if(*(candyTypeRecorder+col+row_for_check*blockEdgeAmount) == *(candyTypeRecorder+col+row*blockEdgeAmount))
+                        combo++;
+                    else
+                        break;
+                    if(combo>=3)
+                    {
+                        //將籤從ballot中移除
+                        for(int i=index;i<(ballot.size()-1);i++)
+                            ballot.at(i) = ballot.at(i+1);
+                        if(!ballot.empty())
+                            ballot.pop_back();
+                        comboExceed = true;
+                        break;
+                    }
+                }
+                if(comboExceed)
+                {
+                    //comboExceed->再找一個值再試一次這格
+                    //not exceed->向下檢查完畢，繼續往左檢查
+                    row++;
+                    continue;
+                }
+                //向左檢查
+                comboExceed = false;
+                combo=1;
+                for(col_for_check=col-1;col_for_check>=0;col_for_check--)
+                {
+                    if(*(candyTypeRecorder+col_for_check+row*blockEdgeAmount) == *(candyTypeRecorder+col+row*blockEdgeAmount))
+                        combo++;
+                    else
+                        break;
+                    if(combo>=3)
+                    {
+                        //將籤從ballot中移除
+                        for(int i=index;i<(ballot.size()-1);i++)
+                            ballot.at(i) = ballot.at(i+1);
+                        if(ballot.size()>0)
+                            ballot.pop_back();
+                        comboExceed = true;
+                        break;
+                    }
+                }
+                if(comboExceed)
+                {
+                    //comboExceed->再找一個值再試一次
+                    //not exceed->換下一格
+                    row++;
+                    continue;
+                }
+
+            }
+
+        }
+
+    //Update the candy image holder
+    candyImageHolderUpdate();
 
 
     //After all of the candies have fallen, then its time to check if there's any candy which can be eliminated
-    //checkCanEliminateAnyCandy();
+    checkCanEliminateAnyCandy();
 }
 
 void GameWindow::cancelSelectedCandy()
