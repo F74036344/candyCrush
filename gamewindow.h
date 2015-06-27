@@ -30,13 +30,15 @@ public:
     void initCandyBoard();
 
     void checkIfAnyCandyIsSelected(int candyToSelectRow,int candyToSelectCol);
-        void checkCandiesToExchange();
-            void useStarCandy();
-            void exchangeCandy(int candyWantToExchangeRow,int candyWantToExchangeCol);
-        void selectCurrentCandy();
-            void useSpecialCandy(int candyToUseRow,int candyToUseCol);
+        void exchangeCandy(int candyWantToExchangeRow,int candyWantToExchangeCol);
+            void useStarCandy(int candySelectedRow,int candySelectedCol,int candyWantToExchangeRow,int candyWantToExchangeCol);
+        void useSpecialCandy(int candyToUseRow,int candyToUseCol);
+
+    void candyImageHolderUpdate();
 
     void checkCanEliminateAnyCandy();
+
+    void generateCandy();
 
     void cancelSelectedCandy();
 
