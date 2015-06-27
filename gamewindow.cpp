@@ -217,7 +217,13 @@ void GameWindow::initCandyBoard()   //初始化版面(要避免一開始就有�
         }
         row = 3;
         col = 4;
-        *(candyTypeRecorder+col+row*blockEdgeAmount) = 10;
+        *(candyTypeRecorder+col+row*blockEdgeAmount) = 13;
+        row = 6;
+        col = 4;
+        *(candyTypeRecorder+col+row*blockEdgeAmount) = 12;
+        row = 6;
+        col = 8;
+        *(candyTypeRecorder+col+row*blockEdgeAmount) = 11;
         //test
         /*
         row = 3;
@@ -295,88 +301,104 @@ void GameWindow::checkIfAnyCandyIsSelected(int candyToSelectRow, int candyToSele
 
 }
 
+
+
 void GameWindow::exchangeCandy(int candyWantToExchangeRow, int candyWantToExchangeCol)
 {
-    //To check the selected candy and the candyWantToExchange is star candy or not
-    //calculate the amount of star candy
-    int starCandyAmount = 0;
-    //Find the selected candy and then check if the selected candy is star candy or not
-    int candySelectedRow,candySelectedCol;
-    for(int i=0;i<power(blockEdgeAmount,2);i++)
-        if(*(isCandySelected+i))    //selected candy
+    //check the type of candyWantToExchange
+    //Here I put the star candy and the other special candy into difference parts
+    //candyWantToExchange:4 posibilities : normal,star,special,collect
+    //candySelected:3 posibilities : normal,star,collect(Since special candy cannot be selected)
+
+
+    if(*(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount)>10
+            && *(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount)<20)
+    {
+        //If the type of candyWantToExchange is special(star candy exclusive) -> have no effect -> deselect all of the candies
+        cancelSelectedCandy();
+    }
+    else
+    {
+        //If anyone of the candyWantToExchange and candySelected is star candy, then it needs more complex process
+        //So I first calculate the amount of star candy
+        int starCandyAmount = 0;
+        //Find the selected candy and then check if the selected candy is star candy or not
+        int candySelectedRow,candySelectedCol;
+        for(int i=0;i<power(blockEdgeAmount,2);i++)
+            if(*(isCandySelected+i))    //selected candy
+            {
+                if(*(candyTypeRecorder+i)==10)  //star candy->starCandyAmount++
+                    starCandyAmount++;
+                //Record the selected candy's row and col no matter the candy is a star candy or not
+                candySelectedRow = i/blockEdgeAmount;
+                candySelectedCol = i%blockEdgeAmount;
+                break;
+            }
+        //Then check if candyWantToExchange is star candy or not
+        if(*(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount)==10)  //star candy
+            starCandyAmount++;
+        //依照starCandyAmount的值做出對應的動作
+        switch(starCandyAmount)
         {
-            if(*(candyTypeRecorder+i)==10)  //star candy->starCandyAmount++
-                starCandyAmount++;
-            //Record the selected candy's row and col no matter the candy is a star candy or not
-            candySelectedRow = i/blockEdgeAmount;
-            candySelectedCol = i%blockEdgeAmount;
+        case 0:
+            {
+            //None of the candies are star candies
+            //If selectedCandy and candyWantToExchange are neighbors of each other, then just exchange them
+            //Next to each other:two conditions:
+            //1. rowDifference = 0,colDifference = 1 or -1
+            //2. rowDifference = 1 or -1, colDifference = 0
+            bool areTheTwoCandiesNeighbors = false;
+            int rowDifference,colDifference;
+            rowDifference = candySelectedRow - candyWantToExchangeRow;
+            colDifference = candySelectedCol - candyWantToExchangeCol;
+            if(rowDifference<0)
+                rowDifference *= -1;    //change it from negative to positive
+            if(colDifference<0)
+                colDifference *= -1;    //change it from negative to positive
+            //Then start to check rowDifference and colDifference
+            //If the rowDifference and the colDifference conform the conditions 1. OR 2.,
+            //set the areTheTwoCandiesNeighbors to true
+            if(rowDifference==0)
+                if(colDifference==1)
+                    areTheTwoCandiesNeighbors = true;
+            if(colDifference==0)
+                if(rowDifference==1)
+                    areTheTwoCandiesNeighbors = true;
+            if(areTheTwoCandiesNeighbors)
+            {
+                //exchange the candies
+                //First, deselect all of the candies
+                cancelSelectedCandy();
+                //Then exchange candies
+                char candyType_tmp;
+                candyType_tmp = *(candyTypeRecorder+candySelectedCol+candySelectedRow*blockEdgeAmount);
+                *(candyTypeRecorder+candySelectedCol+candySelectedRow*blockEdgeAmount) = *(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount);
+                *(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount) = candyType_tmp;
+                //Then update the candyImage holder based on the candyTypeRecorder
+                candyImageHolderUpdate();
+                //And then check if there is any candy that candy be eliminated
+                //checkCanEliminateAnyCandy();
+            }
+            else    //If they are Not neighbors, they can't be exchange -> deselect all of the candies
+               cancelSelectedCandy();
+            break;
+            }
+        case 1://One of the candies is a star candy
+            //Trigger the star candy's ability(Call the starCandy's function)
+            useStarCandy(candySelectedRow,candySelectedCol,candyWantToExchangeRow,candyWantToExchangeCol);
+            break;
+        case 2://Both of the candies are star candy -> have no effect
+            //So just deselect all of the candies
+            cancelSelectedCandy();
             break;
         }
-    //Then check if candyWantToExchange is star candy or not
-    if(*(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount)==10)  //star candy
-        starCandyAmount++;
-    //依照starCandyAmount的值做出對應的動作
-    switch(starCandyAmount)
-    {
-    case 0:
-        {
-        //Both of the candies are normal candies
-        //If selectedCandy and candyWantToExchange are neighbors of each other, then just exchange them
-        //Next to each other:two conditions:
-        //1. rowDifference = 0,colDifference = 1 or -1
-        //2. rowDifference = 1 or -1, colDifference = 0
-        bool areTheTwoCandiesNeighbors = false;
-        int rowDifference,colDifference;
-        rowDifference = candySelectedRow - candyWantToExchangeRow;
-        colDifference = candySelectedCol - candyWantToExchangeCol;
-        if(rowDifference<0)
-            rowDifference *= -1;    //change it from negative to positive
-        if(colDifference<0)
-            colDifference *= -1;    //change it from negative to positive
-        //Then start to check rowDifference and colDifference
-        //If the rowDifference and the colDifference conform the conditions 1. OR 2.,
-        //set the areTheTwoCandiesNeighbors to true
-        if(rowDifference==0)
-            if(colDifference==1)
-                areTheTwoCandiesNeighbors = true;
-        if(colDifference==0)
-            if(rowDifference==1)
-                areTheTwoCandiesNeighbors = true;
-        if(areTheTwoCandiesNeighbors)
-        {
-            //exchange the candies
-            //First, deselect all of the candies
-            cancelSelectedCandy();
-            //Then exchange candies
-            char candyType_tmp;
-            candyType_tmp = *(candyTypeRecorder+candySelectedCol+candySelectedRow*blockEdgeAmount);
-            *(candyTypeRecorder+candySelectedCol+candySelectedRow*blockEdgeAmount) = *(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount);
-            *(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount) = candyType_tmp;
-            //Then update the candyImage holder based on the candyTypeRecorder
-            candyImageHolderUpdate();
-
-            //And then check if there is any candy that candy be eliminated
-            //checkCanEliminateAnyCandy();
-
-        }
-        else    //If they are Not neighbors, they can't be exchange -> deselect all of the candies
-            cancelSelectedCandy();
-
-        break;
-    }
-    case 1://One of the candies is a star candy
-        //Trigger the star candy's ability(Call the starCandy's function)
-        useStarCandy(candySelectedRow,candySelectedCol,candyWantToExchangeRow,candyWantToExchangeCol);
-        break;
-    case 2://Both of the candies are star candy -> have no effect
-        //So just deselect all of the candies
-        cancelSelectedCandy();
-        break;
-
     }
 
 
 }
+
+
+
 
 void GameWindow::useStarCandy(int candySelectedRow,int candySelectedCol,int candyWantToExchangeRow, int candyWantToExchangeCol)
 {
@@ -426,55 +448,114 @@ void GameWindow::useStarCandy(int candySelectedRow,int candySelectedCol,int cand
 
 void GameWindow::useSpecialCandy(int candyToUseRow, int candyToUseCol)
 {
+
+    //Trigger the special candy's ability
+    triggerSpecialCandyAbility(candyToUseRow,candyToUseCol);
+    //Update the candyImageHolder
+    candyImageHolderUpdate();
+    //And deselect all of the candies
+    cancelSelectedCandy();
+    //Then make the remained candies falling and generate new candies
+    //makeCandyFall();
+
+}
+
+void GameWindow::triggerSpecialCandyAbility(int candyToUseRow, int candyToUseCol)
+{
     //To trigger the special candy's ability, check the type of the special candy first
+    int col,row;
     switch(*(candyTypeRecorder+candyToUseCol+candyToUseRow*blockEdgeAmount))
     {
     //star candy's(type Id:10) condition is defined in the exchangeCandy() and useStarCandy() function
     case 11:    //bomb candy
+        qDebug() << "switch case 11";
         //炸掉該candy的周圍區域(一個9x9的方格)
-        for(int row=candyToUseRow-1;row<3;row++)
-            for(int col=candyToUseCol-1;col<3;col++)
+        for(row=candyToUseRow-1;row<(candyToUseRow-1)+3;row++)
+            for(col=candyToUseCol-1;col<(candyToUseCol-1)+3;col++)
                 if(row>=0 && row<blockEdgeAmount)   //If candyToEliminate is in the range -> eliminate it
                     if(col>=0 && col<blockEdgeAmount)
                     {
-                        //check the candy's type before eliminate
+                        if(row==candyToUseRow && col==candyToUseCol)    //先炸掉周圍，之後再炸掉自己，所以遇到自己先跳過
+                            continue;
+                        //check the candy's type before eliminate it
                         if(*(candyTypeRecorder+col+row*blockEdgeAmount)>=10)
                         {
                             if(*(candyTypeRecorder+col+row*blockEdgeAmount)==10)
                             //如果要被炸掉的candy是star candy -> 不可炸掉 ->do nothing
-                                ;
+                            {}
                             else if(*(candyTypeRecorder+col+row*blockEdgeAmount)<20)
                             //如果要被炸掉的candy中有bomb,row,或col candy -> 炸掉時連帶觸發該candy之ability
-                                    useSpecialCandy(row,col);
+                                    triggerSpecialCandyAbility(row,col);
                             else
                             //如果要被炸掉的candy是collect candy -> 不可炸掉 -> do nothing
-                                ;
+                            {}
                         }
-                        else    //normal candy
+                        else    //normal candy  -> just eliminate it
+                        {
+                            qDebug() << "eliminate normal candy";
                             *(candyTypeRecorder+col+row*blockEdgeAmount)=-1;
+                        }
                     }
+        *(candyTypeRecorder+candyToUseCol+candyToUseRow*blockEdgeAmount)=-1;   //炸掉自己
 
         break;
     case 12:    //row candy
         //炸掉該candy所在的row
+        qDebug() << "switch case 12";
+            row = candyToUseRow;
+            for(col=0;col<blockEdgeAmount;col++)
+            {
+                if(col==candyToUseCol)
+                    continue;   //遇到自己先跳過，之後再self-destruct
+                //check the candy's type before eliminate it
+                if(*(candyTypeRecorder+col+row*blockEdgeAmount)>=10)
+                {
+                    if(*(candyTypeRecorder+col+row*blockEdgeAmount)==10)
+                    //如果要被炸掉的candy是star candy -> 不可炸掉 ->do nothing
+                        ;
+                    else if(*(candyTypeRecorder+col+row*blockEdgeAmount)<20)
+                    //如果要被炸掉的candy中有bomb,row,或col candy -> 炸掉時連帶觸發該candy之ability
+                            triggerSpecialCandyAbility(row,col);
+                    else
+                    //如果要被炸掉的candy是collect candy -> 不可炸掉 -> do nothing
+                        ;
+                }
+                else    //normal candy  -> just eliminate it
+                    *(candyTypeRecorder+col+row*blockEdgeAmount)=-1;
+            }
+            *(candyTypeRecorder+candyToUseCol+candyToUseRow*blockEdgeAmount)=-1;    //self-destruct
         break;
+
     case 13:    //col candy
         //炸掉該candy所在的col
+        qDebug() << "switch case 13";
+            col = candyToUseCol;
+            for(row = 0;row<blockEdgeAmount;row++)
+            {
+                if(row == candyToUseRow)    //遇到自己先跳過，之後再self-destruct
+                    continue;
+                //check the candy's type before eliminate it
+                if(*(candyTypeRecorder+col+row*blockEdgeAmount)>=10)
+                {
+                    if(*(candyTypeRecorder+col+row*blockEdgeAmount)==10)
+                    //如果要被炸掉的candy是star candy -> 不可炸掉 ->do nothing
+                        ;
+                    else if(*(candyTypeRecorder+col+row*blockEdgeAmount)<20)
+                    //如果要被炸掉的candy中有bomb,row,或col candy -> 炸掉時連帶觸發該candy之ability
+                            triggerSpecialCandyAbility(row,col);
+                    else
+                    //如果要被炸掉的candy是collect candy -> 不可炸掉 -> do nothing
+                        ;
+                }
+                else    //normal candy  -> just eliminate it
+                    *(candyTypeRecorder+col+row*blockEdgeAmount)=-1;
+            }
+            *(candyTypeRecorder+candyToUseCol+candyToUseRow*blockEdgeAmount)=-1;     //self-destruct
         break;
 
     }
 
-
-
-
-
-
 }
-
-
-
-
-
 
 void GameWindow::candyImageHolderUpdate()
 {
@@ -517,6 +598,19 @@ void GameWindow::candyImageHolderUpdate()
 
 }
 
+void GameWindow::checkCanEliminateAnyCandy()
+{
+
+}
+
+void GameWindow::makeCandyFall()
+{
+
+
+    //After all of the candies have fallen, then its time to check if there's any candy which can be eliminated
+    //checkCanEliminateAnyCandy();
+}
+
 void GameWindow::cancelSelectedCandy()
 {
     //set all candies unselected
@@ -554,7 +648,10 @@ void GameWindow::mousePressEvent(QMouseEvent *event)
 {
     int col,row;
     if(isMousePressEventBlocked)
+    {
         ;//do nothing
+        qDebug()<<"***mousePressEvent BLOCKED!!";
+    }
     else
     {
         int x_pos,y_pos;
@@ -610,10 +707,25 @@ void GameWindow::mousePressEvent(QMouseEvent *event)
             //If the position of the mouse is not in the area of the gameboard, then deselect all candies
             cancelSelectedCandy();
         }
+        qDebug() << "candyTypeRecorder:";
+        for(int r=0;r<blockEdgeAmount;r++)
+        {
+            qDebug() << '\0'+*(candyTypeRecorder+0+r*blockEdgeAmount)<<" "
+                     << '\0'+*(candyTypeRecorder+1+r*blockEdgeAmount)<<" "
+                     << '\0'+*(candyTypeRecorder+2+r*blockEdgeAmount)<<" "
+                     << '\0'+*(candyTypeRecorder+3+r*blockEdgeAmount)<<" "
+                     << '\0'+*(candyTypeRecorder+4+r*blockEdgeAmount)<<" "
+                     << '\0'+*(candyTypeRecorder+5+r*blockEdgeAmount)<<" "
+                     << '\0'+*(candyTypeRecorder+6+r*blockEdgeAmount)<<" "
+                     << '\0'+*(candyTypeRecorder+7+r*blockEdgeAmount)<<" "
+                     << '\0'+*(candyTypeRecorder+8+r*blockEdgeAmount)<<" "
+                     << '\0'+*(candyTypeRecorder+9+r*blockEdgeAmount);
+        }
+        qDebug() << "Mouse current position  x : " << event->x();
+        qDebug() << "Mouse current position  y : " << event->y();
+        qDebug() << "Mouse current position  (col,row) : " <<"("<<col<<","<<row<<")" ;
     }
-    qDebug() << "Mouse current position  x : " << event->x();
-    qDebug() << "Mouse current position  y : " << event->y();
-    qDebug() << "Mouse current position  (col,row) : " <<"("<<col<<","<<row<<")" ;
+
 
 }
 

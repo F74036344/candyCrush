@@ -33,12 +33,13 @@ public:
         void exchangeCandy(int candyWantToExchangeRow,int candyWantToExchangeCol);
             void useStarCandy(int candySelectedRow,int candySelectedCol,int candyWantToExchangeRow,int candyWantToExchangeCol);
         void useSpecialCandy(int candyToUseRow,int candyToUseCol);
+            void triggerSpecialCandyAbility(int candyToUseRow,int candyToUseCol);
 
     void candyImageHolderUpdate();
 
     void checkCanEliminateAnyCandy();
 
-    void generateCandy();
+    void makeCandyFall();
 
     void cancelSelectedCandy();
 
