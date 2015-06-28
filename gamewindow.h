@@ -37,8 +37,9 @@ public:
 
     void candyImageHolderUpdate();
 
-    bool checkCanEliminateAnyCandy();
-        void eliminateCandy();
+    void eliminateConnectedCandy();
+        bool checkCanEliminateAnyCandy();
+
 
     void makeCandyFall(int specialStarCandyAmount,int specialBombCandyAmount,int specialRowCandyAmount,int specialColCandyAmount);
 
