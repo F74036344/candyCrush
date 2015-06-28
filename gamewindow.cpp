@@ -138,7 +138,6 @@ GameWindow::GameWindow(QWidget *parent) :
     }
     //And then set the score board's texts
     ui->label_goalStatement->setGeometry(ui->label_goalStatement->x(),ui->label_goalStatement->y(),ui->label_goalStatement->width(),ui->label_goalStatement->height());
-
     setGoalStatement();
     setGoalValue(0);
     setScoreValue(0);
@@ -174,20 +173,11 @@ void GameWindow::initCandyBoard()   //初始化版面(要避免一開始就有�
     int row,col,row_for_check,col_for_check;
     int combo=1;
     bool comboExceed = false;
-    if(w->data->getModeValue()==3)
-        if(collectCandyAmountOnBoard==0)
-        {
-            //隨便抽一格填入collect candy
-            *(candyTypeRecorder+(qrand()%(power(blockEdgeAmount,2)))) = 20 + goalCandy_index;
-            collectCandyAmountOnBoard++;
-        }
+
     for(row = 0;row<blockEdgeAmount;row++)
         for(col=0;col<blockEdgeAmount;col++)
         {
-            if(*(candyTypeRecorder+col+row*blockEdgeAmount)!=-1)
-            {}  //do nothing
-            else
-            {
+
                 if(!comboExceed)    //If it is not in the comboExceed status, then just initialize the ballot
                 {
                 //Initialize the ballot
@@ -253,8 +243,31 @@ void GameWindow::initCandyBoard()   //初始化版面(要避免一開始就有�
                     continue;
                 }
 
-            }
+
         }
+
+    //如果是collect mode的話要填入一個collect candy
+    if(w->data->getModeValue()==3)
+        if(collectCandyAmountOnBoard==0)
+        {
+            //隨便抽一格填入collect candy
+            *(candyTypeRecorder+(qrand()%(power(blockEdgeAmount,2)))) = 20 + goalCandy_index;
+            collectCandyAmountOnBoard++;
+        }
+
+
+    row = 3;
+    col = 4;
+    *(candyTypeRecorder+col+row*blockEdgeAmount) = 13;
+    row = 6;
+    col = 4;
+    *(candyTypeRecorder+col+row*blockEdgeAmount) = 12;
+    row = 6;
+    col = 7;
+    *(candyTypeRecorder+col+row*blockEdgeAmount) = 11;
+    row = 7;
+    col = 7;
+    *(candyTypeRecorder+col+row*blockEdgeAmount) = 13;
             //test
         /*
             row = 3;
@@ -263,14 +276,6 @@ void GameWindow::initCandyBoard()   //初始化版面(要避免一開始就有�
             row = 6;
             col = 4;
             *(candyTypeRecorder+col+row*blockEdgeAmount) = 12;*/
-
-
-        row = 6;
-        col = 4;
-        *(candyTypeRecorder+col+row*blockEdgeAmount) = 12;
-        row = 6;
-        col = 7;
-        *(candyTypeRecorder+col+row*blockEdgeAmount) = 12;
 
             //test_END
 
@@ -490,7 +495,11 @@ void GameWindow::useStarCandy(int candySelectedRow,int candySelectedCol,int cand
     for(int i=0;i<power(blockEdgeAmount,2);i++)
         if(*(candyTypeRecorder+i)==candyTypeToEliminate)
         {
-            *(candyTypeRecorder+i) = -1;    //set it to undefined type
+            if(w->data->getModeValue()==2)  //如果是amount mode的話，要再額外檢查是否有消到和goal相同的candy
+                if(*(candyTypeRecorder+i)==goalCandy_index)
+                    setGoalValue(goal+1);   //有的話goal要加1
+
+            *(candyTypeRecorder+i) = -1;    //然後再eliminate the candy
             setScoreValue(score+5);     //每消一個得5分
         }
     //And eliminate the star candy itself
@@ -559,7 +568,11 @@ void GameWindow::triggerSpecialCandyAbility(int candyToUseRow, int candyToUseCol
                         else    //normal/undefined candy  -> just eliminate it
                         {
                             qDebug() << "eliminate normal candy";
-                            *(candyTypeRecorder+col+row*blockEdgeAmount)=-1;
+                            if(w->data->getModeValue()==2)  //如果是amount mode的話，要再額外檢查是否有消到和goal相同的candy
+                                if(*(candyTypeRecorder+col+row*blockEdgeAmount)==goalCandy_index)
+                                    setGoalValue(goal+1);   //有的話goal要加1
+
+                            *(candyTypeRecorder+col+row*blockEdgeAmount) = -1;    //然後再eliminate the candy
                             setScoreValue(score+5);     //消掉一個加五分
                         }
                     }
@@ -588,7 +601,11 @@ void GameWindow::triggerSpecialCandyAbility(int candyToUseRow, int candyToUseCol
                 }
                 else    //normal candy  -> just eliminate it
                 {
-                    *(candyTypeRecorder+col+row*blockEdgeAmount)=-1;
+                    if(w->data->getModeValue()==2)  //如果是amount mode的話，要再額外檢查是否有消到和goal相同的candy
+                        if(*(candyTypeRecorder+col+row*blockEdgeAmount)==goalCandy_index)
+                            setGoalValue(goal+1);   //有的話goal要加1
+
+                    *(candyTypeRecorder+col+row*blockEdgeAmount) = -1;    //然後再eliminate the candy
                     setScoreValue(score+5);     //消掉一個加五分
                 }
             }
@@ -617,7 +634,11 @@ void GameWindow::triggerSpecialCandyAbility(int candyToUseRow, int candyToUseCol
                 }
                 else    //normal candy  -> just eliminate it
                 {
-                    *(candyTypeRecorder+col+row*blockEdgeAmount)=-1;
+                    if(w->data->getModeValue()==2)  //如果是amount mode的話，要再額外檢查是否有消到和goal相同的candy
+                        if(*(candyTypeRecorder+col+row*blockEdgeAmount)==goalCandy_index)
+                            setGoalValue(goal+1);   //有的話goal要加1
+
+                    *(candyTypeRecorder+col+row*blockEdgeAmount) = -1;    //然後再eliminate the candy
                     setScoreValue(score+5);     //消掉一個加五分
                 }
             }
@@ -878,6 +899,7 @@ void GameWindow::eliminateConnectedCandy(bool isChecked)
                     {
                         *(candyTypeRecorder+col+row*blockEdgeAmount) = -1;
                         setScoreValue(score+300);   //每消一個collect candy便加300分
+                        setGoalValue(goal+1);       //並且goal++
                         collectCandyAmountOnBoard--;
                     }
         }
@@ -886,10 +908,11 @@ void GameWindow::eliminateConnectedCandy(bool isChecked)
         {
             if(canThisCandyBeEliminated.at(i))  //If the value is true
             {
-                *(candyTypeRecorder+i) = -1;    //then eliminate the candy
                 if(w->data->getModeValue()==2)  //如果是amount mode的話，要再額外檢查是否有消到和goal相同的candy
-                    if(*(candyTypeRecorder+i)==10 + goalCandy_index)
+                    if(*(candyTypeRecorder+i)==goalCandy_index)
                         setGoalValue(goal+1);   //有的話goal要加1
+
+                *(candyTypeRecorder+i) = -1;    //然後再eliminate the candy
             }
             setScoreValue(score+2);             //每消一個可得兩分
         }
@@ -902,6 +925,7 @@ void GameWindow::eliminateConnectedCandy(bool isChecked)
     else
     {
         //沒有可以消除的candy->最後檢查是否達成遊戲結束的條件
+        qDebug() << "collectCandyAmountOnBoard : "<<collectCandyAmountOnBoard;
         cancelSelectedCandy();
         candyImageHolderUpdate();
         checkIfTheGameIsOver(); //檢查有無結束遊戲的條件發生
@@ -962,10 +986,11 @@ void GameWindow::makeCandyFall(int specialStarCandyAmount,int specialBombCandyAm
     //接著開始抽籤啦~
     //抽籤順序:collect->star->bomb->row->col(順序沒什麼差別，先抽後抽機率都一樣)
     int index;
+    int times;
     //collect candy
     if(w->data->getModeValue()==3)  //collect mode 才需要放置collect candy
     {
-        for(int times=0;times<(2-collectCandyAmountOnBoard);times++)    //當場上有2顆collect candy時，不再掉落collect candy
+        for(times=0;times<(2-collectCandyAmountOnBoard);times++)    //當場上有2顆collect candy時，不再掉落collect candy
         {
             index = qrand()%(empty_block_col_ballot.size());
             //將所抽到的格子設為collect Candy
@@ -979,9 +1004,11 @@ void GameWindow::makeCandyFall(int specialStarCandyAmount,int specialBombCandyAm
             empty_block_col_ballot.pop_back();
             empty_block_row_ballot.pop_back();
         }
+        //結束後要將collectCandyAmountOnBoard的數量加上剛剛所產生的數量
+        collectCandyAmountOnBoard += times;
     }
     //starCandy
-    for(int times=0;times<specialStarCandyAmount;times++)
+    for(times=0;times<specialStarCandyAmount;times++)
     {
         index = qrand()%(empty_block_col_ballot.size());
         //將所抽到的格子設為specialStarCandy
@@ -996,7 +1023,7 @@ void GameWindow::makeCandyFall(int specialStarCandyAmount,int specialBombCandyAm
         empty_block_row_ballot.pop_back();
     }
     //bombCandy
-    for(int times=0;times<specialBombCandyAmount;times++)
+    for(times=0;times<specialBombCandyAmount;times++)
     {
         index = qrand()%(empty_block_col_ballot.size());
         //將所抽到的格子設為specialCandy
@@ -1011,7 +1038,7 @@ void GameWindow::makeCandyFall(int specialStarCandyAmount,int specialBombCandyAm
         empty_block_row_ballot.pop_back();
     }
     //rowCandy
-    for(int times=0;times<specialRowCandyAmount;times++)
+    for(times=0;times<specialRowCandyAmount;times++)
     {
         index = qrand()%(empty_block_col_ballot.size());
         //將所抽到的格子設為specialRowCandy
@@ -1026,7 +1053,7 @@ void GameWindow::makeCandyFall(int specialStarCandyAmount,int specialBombCandyAm
         empty_block_row_ballot.pop_back();
     }
     //colCandy
-    for(int times=0;times<specialColCandyAmount;times++)
+    for(times=0;times<specialColCandyAmount;times++)
     {
         index = qrand()%(empty_block_col_ballot.size());
         //將所抽到的格子設為specialColCandy
@@ -1165,7 +1192,8 @@ void GameWindow::setGoalStatement()
 void GameWindow::setGoalValue(int value)
 {
     goal = value;
-    ui->label_goalValue->setText(QString::number(goal)+"/"+QString::number(w->data->getGoalValue()));
+    qDebug() << "goal : " <<goal;
+    ui->label_goalValue->setText(QString::number(value)+"/"+QString::number(w->data->getGoalValue()));
     ui->label_goalValue->setAlignment(Qt::AlignCenter);
     ui->label_goalValue->setStyleSheet("QLabel{background-color : transparent;color : rgba(0xf1,0x88,0x0b,255)}");   //f1880b:orange
 }
@@ -1174,8 +1202,8 @@ void GameWindow::setScoreValue(int value)
 {
     score = value;
     ui->label_scoreValue->setText(QString::number(score));
-    ui->label_goalValue->setAlignment(Qt::AlignCenter);
-    ui->label_goalValue->setStyleSheet("QLabel{color : rgba(0x34,0x72,0x13,255)}");   //3472e3:blue
+    ui->label_scoreValue->setAlignment(Qt::AlignCenter);
+    ui->label_scoreValue->setStyleSheet("QLabel{color : rgba(0x34,0x72,0x13,255)}");   //3472e3:blue
     if(w->data->getModeValue()==1)  //如果是score mode的話
         setGoalValue(score);    //score要和goalValue同步
 }
@@ -1184,8 +1212,8 @@ void GameWindow::setStepValue(int value)
 {
     step = value;
     ui->label_stepValue->setText(QString::number(step));
-    ui->label_goalValue->setAlignment(Qt::AlignCenter);
-    ui->label_goalValue->setStyleSheet("QLabel{color : rgba(0xe0,0x21,0x21,255)}");   //e02121:red
+    ui->label_stepValue->setAlignment(Qt::AlignCenter);
+    ui->label_stepValue->setStyleSheet("QLabel{color : rgba(0xe0,0x21,0x21,255)}");   //e02121:red
 }
 
 int GameWindow::power(int b, int n)

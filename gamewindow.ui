@@ -14,7 +14,7 @@
    <string>Candy Crush</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="resource.qrc">
     <normaloff>:/image/Resource/candyCrushLogo.png</normaloff>:/image/Resource/candyCrushLogo.png</iconset>
   </property>
   <widget class="QGraphicsView" name="graphicsView">
@@ -125,16 +125,16 @@
   <widget class="QLabel" name="label_goalValue">
    <property name="geometry">
     <rect>
-     <x>50</x>
+     <x>9</x>
      <y>110</y>
-     <width>100</width>
+     <width>181</width>
      <height>40</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>Arial</family>
-     <pointsize>20</pointsize>
+     <pointsize>16</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
@@ -251,7 +251,7 @@ color: rgb(255, 0, 0);</string>
     <string>CLICK ME!</string>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/image/Resource/bomb.png</normaloff>:/image/Resource/bomb.png</iconset>
    </property>
    <property name="iconSize">
@@ -262,6 +262,8 @@ color: rgb(255, 0, 0);</string>
    </property>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

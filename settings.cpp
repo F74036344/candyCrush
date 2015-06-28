@@ -143,6 +143,8 @@ void Settings::on_radioButton_mode1_clicked()
     //reset the limits of the spinBox_goal
     ui->spinBox_goal->setMaximum(100000);
     ui->spinBox_goal->setMinimum(100);
+    //and set the default goal of this mode
+    ui->spinBox_goal->setValue(5000);
     //reset the text of label_text_goal
     ui->label_text_goal->setText("goal:\n(100~100000)");
     //reset the text of label_mode_intro
@@ -157,6 +159,8 @@ void Settings::on_radioButton_mode2_clicked()
     //reset the limits of the spinBox_goal
     ui->spinBox_goal->setMaximum(500);
     ui->spinBox_goal->setMinimum(10);
+    //and set the default goal of this mode
+    ui->spinBox_goal->setValue(30);
     //reset the text of label_text_goal
     ui->label_text_goal->setText("goal:\n(10~500)");
     //reset the text of label_mode_intro
@@ -171,6 +175,8 @@ void Settings::on_radioButton_mode3_clicked()
     //reset the limits of the spinBox_goal
     ui->spinBox_goal->setMaximum(20);
     ui->spinBox_goal->setMinimum(1);
+    //and set the default goal of this mode
+    ui->spinBox_goal->setValue(2);
     //reset the text of label_text_goal
     ui->label_text_goal->setText("goal:\n(1~20)");
     //reset the text of label_mode_intro
