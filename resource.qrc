@@ -11,6 +11,7 @@
         <file>Resource/bomb.png</file>
         <file>Resource/candyBackground.jpg</file>
         <file>Resource/burst.png</file>
+        <file>Resource/X.png</file>
     </qresource>
     <qresource prefix="/video"/>
     <qresource prefix="/sound"/>

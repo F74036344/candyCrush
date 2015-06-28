@@ -58,7 +58,7 @@ GameWindow::GameWindow(QWidget *parent) :
     //Initiailize some candy image data which would be added into graphicView later
     candyImage = new QPixmap[6];
     candySelectedImage = new QPixmap[6];
-    for(int i=0;i<6;i++)
+    for(int i=0;i<6;i++)    //load the normal candy's images
     {
         (candyImage+i)->load(":/image_candy/Resource/candy_"+QString::number(i+1)+".png");
         *(candyImage+i) = (candyImage+i)->scaled(blockEdgeLength,blockEdgeLength);
@@ -73,6 +73,7 @@ GameWindow::GameWindow(QWidget *parent) :
     specialCandyBombImage = specialCandyBombImage.scaled(blockEdgeLength,blockEdgeLength);
     specialCandyStarImage.load(":/image_candy/Resource/specialCandy_star.png");
     specialCandyStarImage = specialCandyStarImage.scaled(blockEdgeLength,blockEdgeLength);
+    //load the collect candy image
     collectCandyImage = new QPixmap[4];
     for(int i=0;i<4;i++)
     {
@@ -121,12 +122,35 @@ GameWindow::GameWindow(QWidget *parent) :
     ui->label_backgroundMask->lower();
     ui->label_background->lower();
 
+    //set the score board's properties
+    //Since the function setGoalStatement() would use goalCandy
+    //so set goalCandy_index first
+    switch(w->data->getModeValue())
+    {
+    case 1: //score mode:do nothing
+        break;
+    case 2: //amount mode
+        goalCandy_index = qrand()%(w->data->getKindsOfCandyValue());
+        break;
+    case 3: //collect mode
+        goalCandy_index = qrand()%4;    //There are 4 kinds of the collect candies
+        break;
+    }
+    //And then set the score board's texts
+    ui->label_goalStatement->setGeometry(ui->label_goalStatement->x(),ui->label_goalStatement->y(),ui->label_goalStatement->width(),ui->label_goalStatement->height());
+
+    setGoalStatement();
+    setGoalValue(0);
+    setScoreValue(0);
+    setStepValue(w->data->getStepValue());
+
     //Initialize the candyBoard
     initCandyBoard();
 }
 
 GameWindow::~GameWindow()
 {
+    emit quit(star,score);
     delete ui;
     delete scene;   //delete scene would also delete the contents(blocks,candyImageHolder) of it
 
@@ -142,90 +166,105 @@ GameWindow::~GameWindow()
 void GameWindow::initCandyBoard()   //初始化版面(要避免一開始就有三個或以上連在一起的糖果在版面上)
 {
     int kindsOfCandy = w->data->getKindsOfCandyValue();
+    if(w->data->getModeValue()==3)
+        collectCandyAmountOnBoard =0;
+
     std::vector<int> ballot;
     int index;
     int row,col,row_for_check,col_for_check;
     int combo=1;
     bool comboExceed = false;
+    if(w->data->getModeValue()==3)
+        if(collectCandyAmountOnBoard==0)
+        {
+            //隨便抽一格填入collect candy
+            *(candyTypeRecorder+(qrand()%(power(blockEdgeAmount,2)))) = 20 + goalCandy_index;
+            collectCandyAmountOnBoard++;
+        }
     for(row = 0;row<blockEdgeAmount;row++)
         for(col=0;col<blockEdgeAmount;col++)
         {
-            if(!comboExceed)    //If it is not in the comboExceed status, then just initialize the ballot
+            if(*(candyTypeRecorder+col+row*blockEdgeAmount)!=-1)
+            {}  //do nothing
+            else
             {
-               //Initialize the ballot
-                ballot.clear();
-                for(int i=0;i<kindsOfCandy;i++)
-                    ballot.push_back(i);
-            }
-            index = qrand()%(ballot.size());
-            *(candyTypeRecorder+col+row*blockEdgeAmount) = ballot.at(index);
-            //向上及向左檢查
-            //向上檢查
-            comboExceed = false;
-            combo=1;
-            for(row_for_check=row-1;row_for_check>=0;row_for_check--)
-            {
-                if(*(candyTypeRecorder+col+row_for_check*blockEdgeAmount) == *(candyTypeRecorder+col+row*blockEdgeAmount))
-                    combo++;
-                else
-                    break;
-                if(combo>=3)
+                if(!comboExceed)    //If it is not in the comboExceed status, then just initialize the ballot
                 {
-                    //將籤從ballot中移除
-                    for(int i=index;i<(ballot.size()-1);i++)
-                        ballot.at(i) = ballot.at(i+1);
-                    if(!ballot.empty())
-                        ballot.pop_back();
-                    comboExceed = true;
-                    break;
+                //Initialize the ballot
+                    ballot.clear();
+                    for(int i=0;i<kindsOfCandy;i++)
+                        ballot.push_back(i);
                 }
-            }
-            if(comboExceed)
-            {
-                //comboExceed->再找一個值再試一次
-                //not exceed->向上檢查完畢，繼續往左檢查
-                col--;
-                continue;
-            }
-            //向左檢查
-            comboExceed = false;
-            combo=1;
-            for(col_for_check=col-1;col_for_check>=0;col_for_check--)
-            {
-                if(*(candyTypeRecorder+col_for_check+row*blockEdgeAmount) == *(candyTypeRecorder+col+row*blockEdgeAmount))
-                    combo++;
-                else
-                    break;
-                if(combo>=3)
+                index = qrand()%(ballot.size());
+                *(candyTypeRecorder+col+row*blockEdgeAmount) = ballot.at(index);
+                //向上及向左檢查
+                //向上檢查
+                comboExceed = false;
+                combo=1;
+                for(row_for_check=row-1;row_for_check>=0;row_for_check--)
                 {
-                    //將籤從ballot中移除
-                    for(int i=index;i<(ballot.size()-1);i++)
-                        ballot.at(i) = ballot.at(i+1);
-                    if(ballot.size()>0)
-                        ballot.pop_back();
-                    comboExceed = true;
-                    break;
+                    if(*(candyTypeRecorder+col+row_for_check*blockEdgeAmount) == *(candyTypeRecorder+col+row*blockEdgeAmount))
+                        combo++;
+                    else
+                        break;
+                    if(combo>=3)
+                    {
+                        //將籤從ballot中移除
+                        for(int i=index;i<(ballot.size()-1);i++)
+                            ballot.at(i) = ballot.at(i+1);
+                        if(!ballot.empty())
+                            ballot.pop_back();
+                        comboExceed = true;
+                        break;
+                    }
                 }
-            }
-            if(comboExceed)
-            {
-                //comboExceed->再找一個值再試一次
-                //not exceed->換下一格
-                col--;
-                continue;
-            }
+                if(comboExceed)
+                {
+                    //comboExceed->再找一個值再試一次
+                    //not exceed->向上檢查完畢，繼續往左檢查
+                    col--;
+                    continue;
+                }
+                //向左檢查
+                comboExceed = false;
+                combo=1;
+                for(col_for_check=col-1;col_for_check>=0;col_for_check--)
+                {
+                    if(*(candyTypeRecorder+col_for_check+row*blockEdgeAmount) == *(candyTypeRecorder+col+row*blockEdgeAmount))
+                        combo++;
+                    else
+                        break;
+                    if(combo>=3)
+                    {
+                        //將籤從ballot中移除
+                        for(int i=index;i<(ballot.size()-1);i++)
+                            ballot.at(i) = ballot.at(i+1);
+                        if(ballot.size()>0)
+                            ballot.pop_back();
+                        comboExceed = true;
+                        break;
+                    }
+                }
+                if(comboExceed)
+                {
+                    //comboExceed->再找一個值再試一次
+                    //not exceed->換下一格
+                    col--;
+                    continue;
+                }
 
+            }
         }
-        //test
-    /*
-        row = 3;
-        col = 4;
-        *(candyTypeRecorder+col+row*blockEdgeAmount) = 13;
-        row = 6;
-        col = 4;
-        *(candyTypeRecorder+col+row*blockEdgeAmount) = 12;
+            //test
+        /*
+            row = 3;
+            col = 4;
+            *(candyTypeRecorder+col+row*blockEdgeAmount) = 13;
+            row = 6;
+            col = 4;
+            *(candyTypeRecorder+col+row*blockEdgeAmount) = 12;*/
 
-  */
+
         row = 6;
         col = 4;
         *(candyTypeRecorder+col+row*blockEdgeAmount) = 12;
@@ -233,9 +272,9 @@ void GameWindow::initCandyBoard()   //初始化版面(要避免一開始就有�
         col = 7;
         *(candyTypeRecorder+col+row*blockEdgeAmount) = 12;
 
-        //test_END
+            //test_END
 
-        //candyTypeRecorder設置完成，接著更新candyImageHolder
+            //candyTypeRecorder設置完成，接著更新candyImageHolder
         candyImageHolderUpdate();
 
         //qDebug(optional)
@@ -343,8 +382,12 @@ void GameWindow::exchangeCandy(int candyWantToExchangeRow, int candyWantToExchan
         case 0:
             {
             //None of the candies are star candies
-            //If selectedCandy and candyWantToExchange are neighbors of each other, then just exchange them
-            //Next to each other:two conditions:
+            //能交換的條件:
+            //1.他們在隔壁
+            //2.換完後必須要能消除
+
+            //先檢查有沒有在隔壁
+            //在隔壁的兩種狀況
             //1. rowDifference = 0,colDifference = 1 or -1
             //2. rowDifference = 1 or -1, colDifference = 0
             bool areTheTwoCandiesNeighbors = false;
@@ -364,9 +407,9 @@ void GameWindow::exchangeCandy(int candyWantToExchangeRow, int candyWantToExchan
             if(colDifference==0)
                 if(rowDifference==1)
                     areTheTwoCandiesNeighbors = true;
-            if(areTheTwoCandiesNeighbors)
+            if(areTheTwoCandiesNeighbors)   //如果是在隔壁的話
             {
-                //exchange the candies
+                //exchange the candies看能不能消除
                 //First, deselect all of the candies
                 cancelSelectedCandy();
                 //Then exchange candies
@@ -374,10 +417,22 @@ void GameWindow::exchangeCandy(int candyWantToExchangeRow, int candyWantToExchan
                 candyType_tmp = *(candyTypeRecorder+candySelectedCol+candySelectedRow*blockEdgeAmount);
                 *(candyTypeRecorder+candySelectedCol+candySelectedRow*blockEdgeAmount) = *(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount);
                 *(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount) = candyType_tmp;
-                //Then update the candyImage holder based on the candyTypeRecorder
-                candyImageHolderUpdate();
-                //And then eliminate the connected candy
-                eliminateConnectedCandy();
+                //然後檢查能不能消除
+                if(checkCanEliminateAnyCandy()) //如果能的話
+                {
+                    //即將開始進行消除 -> 步數-1
+                    setStepValue(step-1);
+                    //eliminate the connected candy
+                    eliminateConnectedCandy(true);
+                }
+                else    //不能的話->再換回來，然後deselect all of the candies
+                {
+                    candyType_tmp = *(candyTypeRecorder+candySelectedCol+candySelectedRow*blockEdgeAmount);
+                    *(candyTypeRecorder+candySelectedCol+candySelectedRow*blockEdgeAmount) = *(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount);
+                    *(candyTypeRecorder+candyWantToExchangeCol+candyWantToExchangeRow*blockEdgeAmount) = candyType_tmp;
+                    cancelSelectedCandy();
+                }
+
             }
             else    //If they are Not neighbors, they can't be exchange -> deselect all of the candies
                cancelSelectedCandy();
@@ -402,6 +457,9 @@ void GameWindow::exchangeCandy(int candyWantToExchangeRow, int candyWantToExchan
 
 void GameWindow::useStarCandy(int candySelectedRow,int candySelectedCol,int candyWantToExchangeRow, int candyWantToExchangeCol)
 {
+    //使用了starCandy -> 步數-1
+    setStepValue(step-1);
+
     qDebug() << "useStarCandy_START";
     //Figure out which candy is normal ,and the other is star.
     int normalCandyRow,normalCandyCol,starCandyRow,starCandyCol;
@@ -431,7 +489,10 @@ void GameWindow::useStarCandy(int candySelectedRow,int candySelectedCol,int cand
     //Then eliminate all the candies of the type
     for(int i=0;i<power(blockEdgeAmount,2);i++)
         if(*(candyTypeRecorder+i)==candyTypeToEliminate)
+        {
             *(candyTypeRecorder+i) = -1;    //set it to undefined type
+            setScoreValue(score+5);     //每消一個得5分
+        }
     //And eliminate the star candy itself
      *(candyTypeRecorder+starCandyCol+starCandyRow*blockEdgeAmount) = -1;
 
@@ -446,6 +507,8 @@ void GameWindow::useStarCandy(int candySelectedRow,int candySelectedCol,int cand
 
 void GameWindow::useSpecialCandy(int candyToUseRow, int candyToUseCol)
 {
+    //使用了specialCandy -> 步數-1
+    setStepValue(step-1);
 
     //Trigger the special candy's ability
     triggerSpecialCandyAbility(candyToUseRow,candyToUseCol);
@@ -497,6 +560,7 @@ void GameWindow::triggerSpecialCandyAbility(int candyToUseRow, int candyToUseCol
                         {
                             qDebug() << "eliminate normal candy";
                             *(candyTypeRecorder+col+row*blockEdgeAmount)=-1;
+                            setScoreValue(score+5);     //消掉一個加五分
                         }
                     }
 
@@ -523,7 +587,10 @@ void GameWindow::triggerSpecialCandyAbility(int candyToUseRow, int candyToUseCol
                         ;
                 }
                 else    //normal candy  -> just eliminate it
+                {
                     *(candyTypeRecorder+col+row*blockEdgeAmount)=-1;
+                    setScoreValue(score+5);     //消掉一個加五分
+                }
             }
         break;
 
@@ -549,7 +616,10 @@ void GameWindow::triggerSpecialCandyAbility(int candyToUseRow, int candyToUseCol
                         ;
                 }
                 else    //normal candy  -> just eliminate it
+                {
                     *(candyTypeRecorder+col+row*blockEdgeAmount)=-1;
+                    setScoreValue(score+5);     //消掉一個加五分
+                }
             }
         break;
 
@@ -636,12 +706,25 @@ bool GameWindow::checkCanEliminateAnyCandy()
             }
 
         }
+
+    //以及檢查最下面那一個row有沒有collect candy
+    int row = blockEdgeAmount-1;
+    for(int col=0;col<blockEdgeAmount;col++)
+        if(*(candyTypeRecorder+col+row*blockEdgeAmount)>=20)
+            if(*(candyTypeRecorder+col+row*blockEdgeAmount)<30)
+                return true;    //有的話則return true
     return false;   //上面檢查完都未有return true發生，則return false
 }
 
-void GameWindow::eliminateConnectedCandy()
+void GameWindow::eliminateConnectedCandy(bool isChecked)
 {
-    if(checkCanEliminateAnyCandy()) //如果有可以消除的candy，則開始進行消除
+    bool canEliminateAnyCandy;
+
+    if(isChecked)
+        canEliminateAnyCandy = isChecked;
+    else
+        canEliminateAnyCandy = checkCanEliminateAnyCandy();
+    if(canEliminateAnyCandy) //如果有可以消除的candy，則開始進行消除
     {
         std::vector<bool> canThisCandyBeEliminated(power(blockEdgeAmount,2));
         //Initialize the recorder
@@ -769,7 +852,7 @@ void GameWindow::eliminateConnectedCandy()
                         comboCol++;
                     else    //不一樣 -> combo中斷 -> 跳出loop
                         break;
-                }
+                    }
                 //再往右
                 for(int col_for_check=col+1;col_for_check<blockEdgeAmount;col_for_check++)
                 {
@@ -785,22 +868,48 @@ void GameWindow::eliminateConnectedCandy()
 
             }
         //計算完要產生的specialCandy的數量了，待會便可以傳給makeCandyFall()使其產生相對應數量的candy
-
+        //然後再檢查最後一個row有沒有collect candy(如果是collect mode的話)
+        if(w->data->getModeValue()==3)  //collect mode
+        {
+            int row = blockEdgeAmount-1;
+            for(int col=0;col<blockEdgeAmount;col++)
+                if(*(candyTypeRecorder+col+row*blockEdgeAmount)>=20)
+                    if(*(candyTypeRecorder+col+row*blockEdgeAmount)<30)
+                    {
+                        *(candyTypeRecorder+col+row*blockEdgeAmount) = -1;
+                        setScoreValue(score+300);   //每消一個collect candy便加300分
+                        collectCandyAmountOnBoard--;
+                    }
+        }
         //接著要將canThisCandyBeEliminated = true 的candy給消除
         for(int i=0;i<power(blockEdgeAmount,2);i++)
+        {
             if(canThisCandyBeEliminated.at(i))  //If the value is true
+            {
                 *(candyTypeRecorder+i) = -1;    //then eliminate the candy
-
+                if(w->data->getModeValue()==2)  //如果是amount mode的話，要再額外檢查是否有消到和goal相同的candy
+                    if(*(candyTypeRecorder+i)==10 + goalCandy_index)
+                        setGoalValue(goal+1);   //有的話goal要加1
+            }
+            setScoreValue(score+2);             //每消一個可得兩分
+        }
+        for(int i=0;i<(specialStarCandyAmount+specialBombCandyAmount+specialRowCandyAmount+specialColCandyAmount);i++)
+            setScoreValue(score+5); //每產生一個special candy可得五分
 
         //After eliminate candy, call the function makeCandyFall()
         makeCandyFall(specialStarCandyAmount,specialBombCandyAmount,specialRowCandyAmount,specialColCandyAmount);
     }
     else
     {
+        //沒有可以消除的candy->最後檢查是否達成遊戲結束的條件
         cancelSelectedCandy();
         candyImageHolderUpdate();
+        checkIfTheGameIsOver(); //檢查有無結束遊戲的條件發生
     }
+
 }
+
+
 
 void GameWindow::makeCandyFall(int specialStarCandyAmount,int specialBombCandyAmount,int specialRowCandyAmount,int specialColCandyAmount)
 {
@@ -837,9 +946,9 @@ void GameWindow::makeCandyFall(int specialStarCandyAmount,int specialBombCandyAm
     //step2:generate candies to fill the empty block(step1已將所有candy都movedown了，所以現在空的block都擠在上面)
     //和initCandyBoard十分類似的填法，不過這邊不必像initCandyBoard一樣需要檢查，因為落下的糖果可以相連
     //並且多一個條件:只填-1的格子
-    //不過注意:要先填special candies, 再填normal candy
+    //不過注意:要先填collect candy、special candies, 再填normal candy
 
-    //先填special candies : based on the parameters passed by the eliminateCandy()
+    //先填collect candies，再填special candy
     //製作空位的籤
     std::vector<int> empty_block_row_ballot;
     std::vector<int> empty_block_col_ballot;
@@ -851,8 +960,26 @@ void GameWindow::makeCandyFall(int specialStarCandyAmount,int specialBombCandyAm
             empty_block_col_ballot.push_back(i%blockEdgeAmount);
         }
     //接著開始抽籤啦~
-    //抽籤順序:star->bomb->row->col(順序沒什麼差別，先抽後抽機率都一樣)
+    //抽籤順序:collect->star->bomb->row->col(順序沒什麼差別，先抽後抽機率都一樣)
     int index;
+    //collect candy
+    if(w->data->getModeValue()==3)  //collect mode 才需要放置collect candy
+    {
+        for(int times=0;times<(2-collectCandyAmountOnBoard);times++)    //當場上有2顆collect candy時，不再掉落collect candy
+        {
+            index = qrand()%(empty_block_col_ballot.size());
+            //將所抽到的格子設為collect Candy
+            *(candyTypeRecorder+empty_block_col_ballot.at(index)+empty_block_row_ballot.at(index)*blockEdgeAmount) = 20 + goalCandy_index;    //collect ID = 20 + goalCandy_index
+            //抽到後將該籤銷毀
+            for(int i=index;i<empty_block_col_ballot.size()-1;i++)
+            {
+                empty_block_col_ballot.at(i) = empty_block_col_ballot.at(i+1);
+                empty_block_row_ballot.at(i) = empty_block_row_ballot.at(i+1);
+            }
+            empty_block_col_ballot.pop_back();
+            empty_block_row_ballot.pop_back();
+        }
+    }
     //starCandy
     for(int times=0;times<specialStarCandyAmount;times++)
     {
@@ -933,7 +1060,7 @@ void GameWindow::makeCandyFall(int specialStarCandyAmount,int specialBombCandyAm
 
 
     //After all of the candies have fallen, then its time to eliminate 相連的 candy
-    eliminateConnectedCandy();
+    eliminateConnectedCandy(false);
 
 }
 
@@ -960,6 +1087,105 @@ void GameWindow::cancelSelectedCandy()
         (block+i)->setPen(QPen(Qt::transparent,0));
     }
 
+}
+
+void GameWindow::checkIfTheGameIsOver()
+{
+    //gameOver的兩種情況
+    //1.達成目標
+    //2.步數用完
+    if(goal >= w->data->getGoalValue() || step <= 0)
+    {
+        //計算星星數
+        //完成率達50% -> 1星
+        //完成率達75% -> 2星
+        //完成率達100% -> 3星
+        //完成率低於50% -> 0星
+        if(goal >= w->data->getGoalValue())
+            star = 3;
+        else if(goal >= 0.75*w->data->getBoardEdgeSizeValue())
+            star = 2;
+        else if(goal >= 0.5*w->data->getGoalValue())
+            star = 1;
+        else    //未達50%
+            star = 0;
+
+        //接著產生一個result視窗
+        rslt = new Result;
+        connect(rslt,SIGNAL(destroyed()),this,SLOT(close()));
+        rslt->setAttribute(Qt::WA_DeleteOnClose);
+        rslt->setWindowModality(Qt::ApplicationModal);
+        rslt->show();
+
+
+    }
+
+}
+
+void GameWindow::setGoalStatement()
+{
+    if(w->data->getModeValue()==1)
+    {
+        ui->label_goalStatement->setText(QString("score"));
+        ui->label_goalStatement->setGeometry(ui->label_goalStatement->x()-30,
+                                             ui->label_goalStatement->y()+10,
+                                             120,
+                                             40);
+        ui->label_goalStatement->setAlignment(Qt::AlignCenter);
+        ui->label_goalStatement->setStyleSheet("QLabel{color : rgba(0xf8,0xc6,0x17,255)}"); //f8c617:yellow
+    }
+    else if(w->data->getModeValue()==2)
+    {
+        QPixmap pic;
+        pic.load(":/image_candy/Resource/candy_"+QString::number(goalCandy_index+1)+".png");
+        pic = pic.scaled(60,60);
+        ui->label_goalStatement->clear();
+        ui->label_goalStatement->setPixmap(pic);
+        ui->label_goalStatement->setGeometry(ui->label_goalStatement->x(),
+                                             ui->label_goalStatement->y(),
+                                             60,
+                                             60);
+
+    }
+    else if(w->data->getModeValue()==3)
+    {
+        QPixmap pic;
+        pic.load(":/image_candy/Resource/collectCandy_"+QString::number(goalCandy_index+1)+".png");
+        pic = pic.scaled(60,60);
+        ui->label_goalStatement->clear();
+        ui->label_goalStatement->setPixmap(pic);
+        ui->label_goalStatement->setGeometry(ui->label_goalStatement->x(),
+                                             ui->label_goalStatement->y(),
+                                             60,
+                                             60);
+    }
+
+}
+
+void GameWindow::setGoalValue(int value)
+{
+    goal = value;
+    ui->label_goalValue->setText(QString::number(goal)+"/"+QString::number(w->data->getGoalValue()));
+    ui->label_goalValue->setAlignment(Qt::AlignCenter);
+    ui->label_goalValue->setStyleSheet("QLabel{background-color : transparent;color : rgba(0xf1,0x88,0x0b,255)}");   //f1880b:orange
+}
+
+void GameWindow::setScoreValue(int value)
+{
+    score = value;
+    ui->label_scoreValue->setText(QString::number(score));
+    ui->label_goalValue->setAlignment(Qt::AlignCenter);
+    ui->label_goalValue->setStyleSheet("QLabel{color : rgba(0x34,0x72,0x13,255)}");   //3472e3:blue
+    if(w->data->getModeValue()==1)  //如果是score mode的話
+        setGoalValue(score);    //score要和goalValue同步
+}
+
+void GameWindow::setStepValue(int value)
+{
+    step = value;
+    ui->label_stepValue->setText(QString::number(step));
+    ui->label_goalValue->setAlignment(Qt::AlignCenter);
+    ui->label_goalValue->setStyleSheet("QLabel{color : rgba(0xe0,0x21,0x21,255)}");   //e02121:red
 }
 
 int GameWindow::power(int b, int n)
@@ -1069,6 +1295,19 @@ void GameWindow::on_pushButton_returnToMenu_clicked()
 
 void GameWindow::on_pushButton_clickMe_clicked()
 {
+    //計算星星數
+    //完成率達50% -> 1星
+    //完成率達75% -> 2星
+    //完成率達100% -> 3星
+    //完成率低於50% -> 0星
+    if(goal >= w->data->getGoalValue())
+        star = 3;
+    else if(goal >= 0.75*w->data->getBoardEdgeSizeValue())
+        star = 2;
+    else if(goal >= 0.5*w->data->getGoalValue())
+        star = 1;
+    else    //未達50%
+        star = 0;
     rslt = new Result;
     connect(rslt,SIGNAL(destroyed()),this,SLOT(close()));
     rslt->setAttribute(Qt::WA_DeleteOnClose);

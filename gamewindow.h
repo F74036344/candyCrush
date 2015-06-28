@@ -37,16 +37,22 @@ public:
 
     void candyImageHolderUpdate();
 
-    void eliminateConnectedCandy();
+    void eliminateConnectedCandy(bool isChecked);
         bool checkCanEliminateAnyCandy();
-
 
     void makeCandyFall(int specialStarCandyAmount,int specialBombCandyAmount,int specialRowCandyAmount,int specialColCandyAmount);
 
     void cancelSelectedCandy();
 
+    void checkIfTheGameIsOver();
 
 
+    //functions related to display
+    //這些函式會同步更新ui中的QLabel及gamewindow.cpp中的相對應的變數
+    void setGoalStatement();
+    void setGoalValue(int value);
+    void setScoreValue(int value);
+    void setStepValue(int value);
 
     int power(int,int);
     Result *rslt;
@@ -81,10 +87,15 @@ private:
     bool isMousePressEventBlocked;
 
     //variables to store data such as score, step, etc
+
+    int goalCandy_index;
+    int collectCandyAmountOnBoard;
+
     int goal;
     int score;
     int step;
     int star;
+
 };
 
 #endif // GAMEWINDOW_H
