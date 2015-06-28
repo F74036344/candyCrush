@@ -133,14 +133,15 @@
    </property>
    <property name="font">
     <font>
-     <family>Arial</family>
-     <pointsize>16</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
+     <pointsize>22</pointsize>
+     <weight>50</weight>
+     <italic>false</italic>
+     <bold>false</bold>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(255, 170, 0);</string>
+    <string notr="true">color: rgb(255, 170, 0);
+font: 22pt;</string>
    </property>
    <property name="text">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; color:#ffaa00;&quot;&gt;???&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

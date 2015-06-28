@@ -47,7 +47,7 @@ Result::Result(QWidget *parent) :
     //set the labels displaying your score and the goal
     ui->label_goalValue->setText(QString::number(w->data->getGoalValue()));
     ui->label_goalValue->setAlignment(Qt::AlignCenter);
-    ui->label_yoursValue->setText(QString::number(w->gameWindow->getScoreValue()));
+    ui->label_yoursValue->setText(QString::number(w->gameWindow->getGoalValue()));
     ui->label_yoursValue->setAlignment(Qt::AlignCenter);
 
     //set the accomplish rate

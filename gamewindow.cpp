@@ -127,7 +127,7 @@ GameWindow::GameWindow(QWidget *parent) :
     //so set goalCandy_index first
     switch(w->data->getModeValue())
     {
-    case 1: //score mode:do nothing
+    case 1: //score mode
         break;
     case 2: //amount mode
         goalCandy_index = qrand()%(w->data->getKindsOfCandyValue());
@@ -137,7 +137,6 @@ GameWindow::GameWindow(QWidget *parent) :
         break;
     }
     //And then set the score board's texts
-    ui->label_goalStatement->setGeometry(ui->label_goalStatement->x(),ui->label_goalStatement->y(),ui->label_goalStatement->width(),ui->label_goalStatement->height());
     setGoalStatement();
     setGoalValue(0);
     setScoreValue(0);
@@ -1205,7 +1204,19 @@ void GameWindow::setGoalValue(int value)
     qDebug() << "goal : " <<goal;
     ui->label_goalValue->setText(QString::number(value)+"/"+QString::number(w->data->getGoalValue()));
     ui->label_goalValue->setAlignment(Qt::AlignCenter);
-    ui->label_goalValue->setStyleSheet("QLabel{;color : rgb(255,234,0)}");   //yellow:ffea00
+    switch(w->data->getModeValue())
+    {
+    case 1:
+        ui->label_goalValue->setStyleSheet("QLabel{font:75 16pt, \"Arial\" ;color : rgb(255,234,0)}");    //yellow:ffea00
+        break;
+    case 2:
+        ui->label_goalValue->setStyleSheet("QLabel{font:75 20pt, \"Arial\" ;color : rgb(255,234,0)}");
+        break;
+    case 3:
+        ui->label_goalValue->setStyleSheet("QLabel{font:75 20pt, \"Arial\" ;color : rgb(255,234,0)}");
+        break;
+    }
+
 }
 
 void GameWindow::setScoreValue(int value)
