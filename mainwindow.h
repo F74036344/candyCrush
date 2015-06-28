@@ -8,6 +8,7 @@
 //include source
 #include "sound.h"
 #include "data.h"
+#include "gamewindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,6 +24,7 @@ public:
     Sound *sound;
     Data *data;
     Result *result;
+    GameWindow *gameWindow;
 
 signals:
     void quit(int star,int score);

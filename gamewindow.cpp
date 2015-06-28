@@ -251,11 +251,13 @@ void GameWindow::initCandyBoard()   //初始化版面(要避免一開始就有�
         if(collectCandyAmountOnBoard==0)
         {
             //隨便抽一格填入collect candy
-            *(candyTypeRecorder+(qrand()%(power(blockEdgeAmount,2)))) = 20 + goalCandy_index;
+            int row=qrand()%(blockEdgeAmount-3);    //最下面3個row不給填:)
+            int col=qrand()%(blockEdgeAmount);
+            *(candyTypeRecorder+col+row*blockEdgeAmount) = 20 + goalCandy_index;
             collectCandyAmountOnBoard++;
         }
-
-
+            //test
+/*
     row = 3;
     col = 4;
     *(candyTypeRecorder+col+row*blockEdgeAmount) = 13;
@@ -268,16 +270,8 @@ void GameWindow::initCandyBoard()   //初始化版面(要避免一開始就有�
     row = 7;
     col = 7;
     *(candyTypeRecorder+col+row*blockEdgeAmount) = 13;
-            //test
-        /*
-            row = 3;
-            col = 4;
-            *(candyTypeRecorder+col+row*blockEdgeAmount) = 13;
-            row = 6;
-            col = 4;
-            *(candyTypeRecorder+col+row*blockEdgeAmount) = 12;*/
-
-            //test_END
+*/
+//test_END
 
             //candyTypeRecorder設置完成，接著更新candyImageHolder
         candyImageHolderUpdate();
@@ -1121,6 +1115,7 @@ void GameWindow::checkIfTheGameIsOver()
     //gameOver的兩種情況
     //1.達成目標
     //2.步數用完
+    //3.無法再移動了(太晚想到來不及做了>.<)
     if(goal >= w->data->getGoalValue() || step <= 0)
     {
         //計算星星數
@@ -1130,7 +1125,7 @@ void GameWindow::checkIfTheGameIsOver()
         //完成率低於50% -> 0星
         if(goal >= w->data->getGoalValue())
             star = 3;
-        else if(goal >= 0.75*w->data->getBoardEdgeSizeValue())
+        else if(goal >= 0.75*w->data->getGoalValue())
             star = 2;
         else if(goal >= 0.5*w->data->getGoalValue())
             star = 1;
@@ -1149,6 +1144,21 @@ void GameWindow::checkIfTheGameIsOver()
 
 }
 
+int GameWindow::getScoreValue()
+{
+    return score;
+}
+
+int GameWindow::getGoalValue()
+{
+    return goal;
+}
+
+int GameWindow::getStarValue()
+{
+    return star;
+}
+
 void GameWindow::setGoalStatement()
 {
     if(w->data->getModeValue()==1)
@@ -1159,7 +1169,7 @@ void GameWindow::setGoalStatement()
                                              120,
                                              40);
         ui->label_goalStatement->setAlignment(Qt::AlignCenter);
-        ui->label_goalStatement->setStyleSheet("QLabel{color : rgba(0xf8,0xc6,0x17,255)}"); //f8c617:yellow
+        ui->label_goalStatement->setStyleSheet("QLabel{color : rgb(248,198,23)}"); //yellow
     }
     else if(w->data->getModeValue()==2)
     {
@@ -1195,7 +1205,7 @@ void GameWindow::setGoalValue(int value)
     qDebug() << "goal : " <<goal;
     ui->label_goalValue->setText(QString::number(value)+"/"+QString::number(w->data->getGoalValue()));
     ui->label_goalValue->setAlignment(Qt::AlignCenter);
-    ui->label_goalValue->setStyleSheet("QLabel{background-color : transparent;color : rgba(0xf1,0x88,0x0b,255)}");   //f1880b:orange
+    ui->label_goalValue->setStyleSheet("QLabel{;color : rgb(255,234,0)}");   //yellow:ffea00
 }
 
 void GameWindow::setScoreValue(int value)
@@ -1203,7 +1213,7 @@ void GameWindow::setScoreValue(int value)
     score = value;
     ui->label_scoreValue->setText(QString::number(score));
     ui->label_scoreValue->setAlignment(Qt::AlignCenter);
-    ui->label_scoreValue->setStyleSheet("QLabel{color : rgba(0x34,0x72,0x13,255)}");   //3472e3:blue
+    ui->label_scoreValue->setStyleSheet("QLabel{color : rgb(0,255,240)}");   //blue:00fff0
     if(w->data->getModeValue()==1)  //如果是score mode的話
         setGoalValue(score);    //score要和goalValue同步
 }
@@ -1213,7 +1223,7 @@ void GameWindow::setStepValue(int value)
     step = value;
     ui->label_stepValue->setText(QString::number(step));
     ui->label_stepValue->setAlignment(Qt::AlignCenter);
-    ui->label_stepValue->setStyleSheet("QLabel{color : rgba(0xe0,0x21,0x21,255)}");   //e02121:red
+    ui->label_stepValue->setStyleSheet("QLabel{color : rgb(255,42,0)}");   //red:ff2a00
 }
 
 int GameWindow::power(int b, int n)
@@ -1330,7 +1340,7 @@ void GameWindow::on_pushButton_clickMe_clicked()
     //完成率低於50% -> 0星
     if(goal >= w->data->getGoalValue())
         star = 3;
-    else if(goal >= 0.75*w->data->getBoardEdgeSizeValue())
+    else if(goal >= 0.75*w->data->getGoalValue())
         star = 2;
     else if(goal >= 0.5*w->data->getGoalValue())
         star = 1;

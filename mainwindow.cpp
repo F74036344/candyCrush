@@ -124,7 +124,7 @@ void MainWindow::on_pushButton_test_clicked()
 
 void MainWindow::on_pushButton_gameStart_clicked()
 {
-    GameWindow *gameWindow = new GameWindow;
+    gameWindow = new GameWindow;
     gameWindow->setWindowModality(Qt::ApplicationModal);
     gameWindow->setAttribute(Qt::WA_DeleteOnClose);
     gameWindow->show();

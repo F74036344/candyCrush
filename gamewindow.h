@@ -46,6 +46,9 @@ public:
 
     void checkIfTheGameIsOver();
 
+    int getScoreValue();
+    int getGoalValue();
+    int getStarValue();
 
     //functions related to display
     //這些函式會同步更新ui中的QLabel及gamewindow.cpp中的相對應的變數
@@ -87,8 +90,9 @@ private:
     bool isMousePressEventBlocked;
 
     //variables to store data such as score, step, etc
-
+public:
     int goalCandy_index;
+private:
     int collectCandyAmountOnBoard;
 
     int goal;

@@ -5,7 +5,7 @@ Data::Data()
     //set default values
     setModeValue(1);
     setStepValue(30);
-    setGoalValue(5000);
+    setGoalValue(10000);
     setComboBox_boardEdgeSizeIndex(2);
     setComboBox_kindsOfCandyIndex(1);
 }
