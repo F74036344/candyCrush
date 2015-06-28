@@ -12,6 +12,7 @@ GameWindow::GameWindow(QWidget *parent) :
     ui(new Ui::GameWindow)
 {
     ui->setupUi(this);
+    //Set the seed of the qrand()
     qsrand(QTime::currentTime().msec());
     //set some basic geometry values first
     blockEdgeAmount = w->data->getBoardEdgeSizeValue();
@@ -436,7 +437,7 @@ void GameWindow::useStarCandy(int candySelectedRow,int candySelectedCol,int cand
 
     //Star candy have been used, some candy on the board have been eliminated by the star candy's ability
     //So it's about time to generate the candy to fill in the blank on the candyboard
-    makeCandyFall();
+    makeCandyFall(0,0,0,0);
 
 }
 
@@ -450,7 +451,7 @@ void GameWindow::useSpecialCandy(int candyToUseRow, int candyToUseCol)
     //And deselect all of the candies
     cancelSelectedCandy();
     //Then make the remained candies falling and generate new candies
-    makeCandyFall();
+    makeCandyFall(0,0,0,0);
 
 }
 
@@ -603,10 +604,12 @@ bool GameWindow::checkCanEliminateAnyCandy()
             {
                 //先向右檢查
                 combo=1;
-                for(int col_for_check=col;col_for_check<blockEdgeAmount;col_for_check++)
+                for(int col_for_check=col+1;col_for_check<blockEdgeAmount;col_for_check++)
                 {
                     if(*(candyTypeRecorder+col+row*blockEdgeAmount)==*(candyTypeRecorder+col_for_check+row*blockEdgeAmount))
                         combo++;
+                    else
+                        break;
                     if(combo>=3)    //有超過三個以上相連 -> return true
                     {
                         return true;
@@ -614,10 +617,12 @@ bool GameWindow::checkCanEliminateAnyCandy()
                 }
                 //再向下檢查
                 combo=1;
-                for(int row_for_check=row;row_for_check<blockEdgeAmount;row_for_check++)
+                for(int row_for_check=row+1;row_for_check<blockEdgeAmount;row_for_check++)
                 {
                     if(*(candyTypeRecorder+col+row*blockEdgeAmount)==*(candyTypeRecorder+col+row_for_check*blockEdgeAmount))
                         combo++;
+                    else
+                        break;
                     if(combo>=3)    //有超過三個以上相連 ->return true
                     {
                            return true;
@@ -631,68 +636,161 @@ bool GameWindow::checkCanEliminateAnyCandy()
 
 void GameWindow::eliminateCandy()
 {
-    std::vector<bool> isThisCandyNeedEliminating[power(blockEdgeAmount,2)];
+    std::vector<bool> canThisCandyBeEliminated(power(blockEdgeAmount,2));
     //Initialize the recorder
     for(int i=0;i<power(blockEdgeAmount,2);i++)
-        isThisCandyNeedEliminating.at(i) = false;
-    int up_extension;
-    int down_extension;
-    int left_extension;
-    int right_extension;
+        canThisCandyBeEliminated.at(i) = false;
+
     int specialStarCandyAmount = 0;
     int specialBombCandyAmount = 0;
     int specialRowCandyAmount = 0;
     int specialColCandyAmount = 0;
-    //檢查每一個candy的status
-    int combo,type_tmp=-2;
-    //逐列檢查
+    int combo,type_tmp;
+
+    //逐列檢查:檢查rowCandy,starCandy
     for(int row=0;row<blockEdgeAmount;row++)
     {
-        combo=0;
+        //Initialize type_tmp and combo
+        type_tmp=-99;
+        combo = 1;
         for(int col=0;col<blockEdgeAmount;col++)
         {
             if(type_tmp==*(candyTypeRecorder+col+row*blockEdgeAmount))
             {
                 combo++;
-                if(combo>=3)    //當combo>=3時，找尾巴block的下方及從尾巴往前數2個位置的block的下方有沒有combo=3，有的話specialBombCandy++
+                if(combo>=3)    //當combo>=3時，代表三個以上相連 ->可消掉
                 {
-
-
-
-
-
+                    if(combo==3)    //將此糖果、此糖果-1、此糖果-2的糖果的canThisCandyBeEliminated設成true
+                        for(int j=0;j<3;j++)
+                            canThisCandyBeEliminated.at((col-j)+row*blockEdgeAmount)=true;
+                    else    //combo>3 -> 只須設現在的candy的canThisCandyBeEliminated為true即可
+                        canThisCandyBeEliminated.at(col+row*blockEdgeAmount)=true;
 
                 }
                 if(combo==4)    //當combo=4時，specialRowCandyAmount++
                     specialRowCandyAmount++;
-                if(combo==5)    //當combo=5時，specialStarCandyAmount++
+                if(combo==5)    //當combo=5時，specialStarCandyAmount++,specialRowCandyAmount--
+                {
                     specialStarCandyAmount++;
+                    specialRowCandyAmount--;
+                }
             }
             else
             {
                 type_tmp = *(candyTypeRecorder+col+row*blockEdgeAmount);
-                combo = 0;  //重置combo
+                combo = 1;  //重置combo
             }
         }
     }
-    //逐行檢查
+
+    //逐行檢查:檢查colCandyAmount,starCandyAmount
     for(int col=0;col<blockEdgeAmount;col++)
     {
+        //Initialize type_tmp and combo
+        type_tmp=-99;
+        combo = 1;
         for(int row=0;row<blockEdgeAmount;row++)
         {
+            if(type_tmp==*(candyTypeRecorder+col+row*blockEdgeAmount))
+            {
+                combo++;
+                if(combo>=3)    //當combo>=3時，代表三個以上相連 ->可消掉
+                {
+                    if(combo==3)    //將此糖果、此糖果-1、此糖果-2的糖果的canThisCandyBeEliminated設成true
+                        for(int j=0;j<3;j++)
+                            canThisCandyBeEliminated.at(col+(row-j)*blockEdgeAmount)=true;
+                    else    //combo>3 -> 只須設現在的candy的canThisCandyBeEliminated為true即可
+                        canThisCandyBeEliminated.at(col+row*blockEdgeAmount)=true;
+
+                }
+                if(combo==4)    //當combo=4時，specialRowCandyAmount++
+                    specialColCandyAmount++;
+                if(combo==5)    //當combo=5時，specialStarCandyAmount++,specialColCandyAmount--
+                {
+                    specialStarCandyAmount++;
+                    specialColCandyAmount--;
+                }
+            }
+            else
+            {
+                type_tmp = *(candyTypeRecorder+col+row*blockEdgeAmount);
+                combo = 1;  //重置combo
+            }
+        }
+
+    }
+
+    //逐個檢查:檢查bombCandyAmount
+    //每一個candy往  1.上左  2.下右   檢查，  如果  comboCol>=3 && comboRow>=3 , 則bombCandyAmount++
+    int comboCol,comboRow;
+    for(int row=0;row<blockEdgeAmount;row++)
+        for(int col=0;col<blockEdgeAmount;col++)
+        {
+            //1.往上左檢查
+            //在進行檢查之前，initialize the combo values first
+            comboRow=1;
+            comboCol=1;
+            //先往上
+            for(int row_for_check=row-1;row_for_check>=0;row_for_check--)
+            {
+                if(*(candyTypeRecorder+col+row*blockEdgeAmount)==*(candyTypeRecorder+col+row_for_check*blockEdgeAmount))
+                    comboCol++;
+                else    //不一樣 -> combo中斷 -> 跳出loop
+                    break;
+            }
+            //再往左
+            for(int col_for_check=col-1;col_for_check>=0;col_for_check--)
+            {
+                if(*(candyTypeRecorder+col+row*blockEdgeAmount)==*(candyTypeRecorder+col_for_check+row*blockEdgeAmount))
+                    comboRow++;
+                else    //不一樣 -> combo中斷 -> 跳出loop
+                    break;
+            }
+            //然後檢查有沒有同時符合comboRow>=3和comboCol>=3  有的話specialCandyAmount++
+            if(comboRow>=3 && comboCol>=3)
+                specialBombCandyAmount++;
 
 
-
+            //2.往下右檢查
+            //在進行檢查之前，initialize the combo values first
+            comboRow=1;
+            comboCol=1;
+            //先往下
+            for(int row_for_check=row+1;row_for_check<blockEdgeAmount;row_for_check++)
+            {
+                if(*(candyTypeRecorder+col+row*blockEdgeAmount)==*(candyTypeRecorder+col+row_for_check*blockEdgeAmount))
+                    comboCol++;
+                else    //不一樣 -> combo中斷 -> 跳出loop
+                    break;
+            }
+            //再往右
+            for(int col_for_check=col+1;col_for_check<blockEdgeAmount;col_for_check++)
+            {
+                if(*(candyTypeRecorder+col+row*blockEdgeAmount)==*(candyTypeRecorder+col_for_check+row*blockEdgeAmount))
+                    comboRow++;
+                else    //不一樣 -> combo中斷 -> 跳出loop
+                    break;
+            }
+            //然後檢查有沒有同時符合comboRow>=3和comboCol>=3  有的話specialCandyAmount++
+            if(comboRow>=3 && comboCol>=3)
+                specialBombCandyAmount++;
 
 
         }
-    }
+    //計算完要產生的specialCandy的數量了，待會便可以傳給makeCandyFall()使其產生相對應數量的candy
+
+    //接著要將canThisCandyBeEliminated = true 的candy給消除
+    for(int i=0;i<power(blockEdgeAmount,2);i++)
+        if(canThisCandyBeEliminated.at(i))  //If the value is true
+            *(candyTypeRecorder+i) = -1;    //then eliminate the candy
+
+
     //After eliminate candy, call the function makeCandyFall()
-    //makeCandyFall();
+    makeCandyFall(specialStarCandyAmount,specialBombCandyAmount,specialRowCandyAmount,specialColCandyAmount);
 
 }
 
-void GameWindow::makeCandyFall()
+void GameWindow::makeCandyFall(int specialStarCandyAmount,int specialBombCandyAmount,int specialRowCandyAmount,int specialColCandyAmount)
 {
     //-1 means the block has no candy(empty)
 
@@ -727,7 +825,85 @@ void GameWindow::makeCandyFall()
     //step2:generate candies to fill the empty block(step1已將所有candy都movedown了，所以現在空的block都擠在上面)
     //和initCandyBoard十分類似的填法，不過這邊不必像initCandyBoard一樣需要檢查，因為落下的糖果可以相連
     //並且多一個條件:只填-1的格子
+    //不過注意:要先填special candies, 再填normal candy
 
+    //先填special candies : based on the parameters passed by the eliminateCandy()
+    //製作空位的籤
+    std::vector<int> empty_block_row_ballot;
+    std::vector<int> empty_block_col_ballot;
+    //將空位的pos記錄到empty_block_col_ballot和empty_block_row_ballot
+    for(int i=0;i<power(blockEdgeAmount,2);i++)
+        if(*(candyTypeRecorder+i) == -1)    //如果是空的 -> 將位置資訊記錄到empty_block_row_ballot和empty_block_col_ballot
+        {
+            empty_block_row_ballot.push_back(i/blockEdgeAmount);
+            empty_block_col_ballot.push_back(i%blockEdgeAmount);
+        }
+    //接著開始抽籤啦~
+    //抽籤順序:star->bomb->row->col(順序沒什麼差別，先抽後抽機率都一樣)
+    int index;
+    //starCandy
+    for(int times=0;times<specialStarCandyAmount;times++)
+    {
+        index = qrand()%(empty_block_col_ballot.size());
+        //將所抽到的格子設為specialStarCandy
+        *(candyTypeRecorder+empty_block_col_ballot.at(index)+empty_block_row_ballot.at(index)*blockEdgeAmount) = 10;    //starCandy ID = 10
+        //抽到後將該籤銷毀
+        for(int i=index;i<empty_block_col_ballot.size()-1;i++)
+        {
+            empty_block_col_ballot.at(i) = empty_block_col_ballot.at(i+1);
+            empty_block_row_ballot.at(i) = empty_block_row_ballot.at(i+1);
+        }
+        empty_block_col_ballot.pop_back();
+        empty_block_row_ballot.pop_back();
+    }
+    //bombCandy
+    for(int times=0;times<specialBombCandyAmount;times++)
+    {
+        index = qrand()%(empty_block_col_ballot.size());
+        //將所抽到的格子設為specialCandy
+        *(candyTypeRecorder+empty_block_col_ballot.at(index)+empty_block_row_ballot.at(index)*blockEdgeAmount) = 11;    //bombCandy ID = 11
+        //抽到後將該籤銷毀
+        for(int i=index;i<empty_block_col_ballot.size()-1;i++)
+        {
+            empty_block_col_ballot.at(i) = empty_block_col_ballot.at(i+1);
+            empty_block_row_ballot.at(i) = empty_block_row_ballot.at(i+1);
+        }
+        empty_block_col_ballot.pop_back();
+        empty_block_row_ballot.pop_back();
+    }
+    //rowCandy
+    for(int times=0;times<specialRowCandyAmount;times++)
+    {
+        index = qrand()%(empty_block_col_ballot.size());
+        //將所抽到的格子設為specialRowCandy
+        *(candyTypeRecorder+empty_block_col_ballot.at(index)+empty_block_row_ballot.at(index)*blockEdgeAmount) = 12;    //rowCandy ID = 12
+        //抽到後將該籤銷毀
+        for(int i=index;i<empty_block_col_ballot.size()-1;i++)
+        {
+            empty_block_col_ballot.at(i) = empty_block_col_ballot.at(i+1);
+            empty_block_row_ballot.at(i) = empty_block_row_ballot.at(i+1);
+        }
+        empty_block_col_ballot.pop_back();
+        empty_block_row_ballot.pop_back();
+    }
+    //colCandy
+    for(int times=0;times<specialColCandyAmount;times++)
+    {
+        index = qrand()%(empty_block_col_ballot.size());
+        //將所抽到的格子設為specialColCandy
+        *(candyTypeRecorder+empty_block_col_ballot.at(index)+empty_block_row_ballot.at(index)*blockEdgeAmount) = 13;    //colCandy ID = 13
+        //抽到後將該籤銷毀
+        for(int i=index;i<empty_block_col_ballot.size()-1;i++)
+        {
+            empty_block_col_ballot.at(i) = empty_block_col_ballot.at(i+1);
+            empty_block_row_ballot.at(i) = empty_block_row_ballot.at(i+1);
+        }
+        empty_block_col_ballot.pop_back();
+        empty_block_row_ballot.pop_back();
+    }
+
+
+    //剩下的空格子就可以亂填normal candy了
     int kindsOfCandy = w->data->getKindsOfCandyValue();
     int row,col;
     for(col = 0;col<blockEdgeAmount;col++)
@@ -747,8 +923,9 @@ void GameWindow::makeCandyFall()
     //After all of the candies have fallen, then its time to check if there's any candy which can be eliminated
     if(checkCanEliminateAnyCandy()) //if there is, then eliminate the candies
     {
-        //eliminateCandy();
+        eliminateCandy();
     }
+
 }
 
 void GameWindow::cancelSelectedCandy()

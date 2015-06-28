@@ -40,7 +40,7 @@ public:
     bool checkCanEliminateAnyCandy();
         void eliminateCandy();
 
-    void makeCandyFall();
+    void makeCandyFall(int specialStarCandyAmount,int specialBombCandyAmount,int specialRowCandyAmount,int specialColCandyAmount);
 
     void cancelSelectedCandy();
 
